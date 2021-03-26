@@ -4,8 +4,13 @@ import locale
 import os
 from typing import Dict
 
+
+
+
 import config  # noqa: F401
-from flask import Flask, Response, send_from_directory
+from flask import Flask, Response, send_from_directory, flash, render_template, request, redirect, jsonify
+from flask_calendar.db_setup import init_db, db_session
+from flask_sqlalchemy import SQLAlchemy
 from flask_calendar.actions import (
     delete_task_action,
     do_login_action,
@@ -22,9 +27,16 @@ from flask_calendar.actions import (
 from flask_calendar.app_utils import task_details_for_markup
 
 
+def get_db(app):
+    db = SQLAlchemy(app)
+    return db
+
+
 def create_app(config_overrides: Dict = None) -> Flask:
     app = Flask(__name__)
     app.config.from_object("config")
+    app.secret_key = app.config["SECRET_KEY"]
+    
 
     if config_overrides is not None:
         app.config.from_mapping(config_overrides)
@@ -76,12 +88,15 @@ def create_app(config_overrides: Dict = None) -> Flask:
         hide_repetition_task_instance_action,
         methods=["POST"],
     )
+    
+
+        
 
     app.jinja_env.filters["task_details_for_markup"] = task_details_for_markup
 
     return app
 
+app = create_app()
+db = SQLAlchemy(app)
 
-if __name__ == "__main__":
-    app = create_app()
-    app.run(debug=app.config["DEBUG"], host=app.config["HOST_IP"])
+
