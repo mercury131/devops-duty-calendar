@@ -1,9 +1,11 @@
 from flask_calendar.app import app
 from flask_calendar.db_setup import init_db, db_session
 from flask_calendar.forms import SearchForm, Duty
-from flask import flash, render_template, request, redirect, jsonify
+from flask import flash, session, render_template, request, redirect, jsonify
 from flask_calendar.models import Project
 from flask_calendar.tables import Results
+from flask_calendar.app_utils import remove_session , get_session_username
+from flask_calendar.constants import SESSION_ID
 from flask_calendar.authentication import Authentication
 from flask_calendar.app_utils import (
     add_session,
@@ -33,7 +35,10 @@ def show_dutys():
     # display results
     tableres = Results(results)
     tableres.border = True
-    return render_template('duty.html', table=tableres)
+    if session['admin'] == 'true' :
+        return render_template('duty.html', table=tableres)
+    else:
+        return redirect("/", code=302)
 
 @app.route('/new_duty', methods=['GET', 'POST'])
 @authenticated
@@ -42,13 +47,16 @@ def new_duty():
     Add a new duty
     """
     form = Duty(request.form)
-    if request.method == 'POST' and form.validate():
-        # save the duty
-        duty = Duty()
-        save_changes(duty, form, new=True)
-        flash('Duty created successfully!')
-        return redirect('/')
-    return render_template('new_duty.html', form=form)
+    if session['admin'] == 'true' :
+        if request.method == 'POST' and form.validate():
+            # save the duty
+            duty = Duty()
+            save_changes(duty, form, new=True)
+            flash('Duty created successfully!')
+            return redirect('/')
+        return render_template('new_duty.html', form=form)
+    else:
+        return redirect("/", code=302)
 
 @authenticated
 def save_changes(duty, form, new=False):
@@ -80,41 +88,48 @@ def save_changes(duty, form, new=False):
 @app.route('/item/<int:id>', methods=['GET', 'POST'])
 @authenticated
 def edit(id):
-    qry = db_session.query(Project).filter(
-                Project.id==id)
-    duty = qry.first()
-    if duty:
-        form = Duty(formdata=request.form, obj=duty)
-        if request.method == 'POST' and form.validate():
-            # save edits
-            save_changes(duty, form)
-            flash('Duty updated successfully!')
-            return redirect('/')
-        return render_template('edit_duty.html', form=form)
+    if session['admin'] == 'true' :
+        qry = db_session.query(Project).filter(
+                    Project.id==id)
+        duty = qry.first()
+        if duty:
+            form = Duty(formdata=request.form, obj=duty)
+            if request.method == 'POST' and form.validate():
+                # save edits
+                save_changes(duty, form)
+                flash('Duty updated successfully!')
+                return redirect('/')
+            return render_template('edit_duty.html', form=form)
+        else:
+            return 'Error loading #{id}'.format(id=id)
     else:
-        return 'Error loading #{id}'.format(id=id)
+        return redirect("/", code=302)
 
 @app.route('/delete/<int:id>', methods=['GET', 'POST'])
 @authenticated
 def delete(id):
-    """
-    Delete the item in the database that matches the specified
-    id in the URL
-    """
-    qry = db_session.query(Project).filter(
-        Project.id==id)
-    duty = qry.first()
-    if duty:
-        form = Duty(formdata=request.form, obj=duty)
-        if request.method == 'POST' and form.validate():
-            # delete the item from the database
-            db_session.delete(duty)
-            db_session.commit()
-            flash('Duty deleted successfully!')
-            return redirect('/')
-        return render_template('delete_duty.html', form=form)
+    if session['admin'] == 'true' :
+            
+        """
+        Delete the item in the database that matches the specified
+        id in the URL
+        """
+        qry = db_session.query(Project).filter(
+            Project.id==id)
+        duty = qry.first()
+        if duty:
+            form = Duty(formdata=request.form, obj=duty)
+            if request.method == 'POST' and form.validate():
+                # delete the item from the database
+                db_session.delete(duty)
+                db_session.commit()
+                flash('Duty deleted successfully!')
+                return redirect('/')
+            return render_template('delete_duty.html', form=form)
+        else:
+            return 'Error deleting #{id}'.format(id=id)
     else:
-        return 'Error deleting #{id}'.format(id=id)
+        return redirect("/", code=302)
 
 @app.route('/duty_choice/<value>')
 @authenticated
@@ -140,9 +155,15 @@ def duty_projects():
     projects =list(set(projects))
     return jsonify({'PROJECTS': projects})
 
-
-
-
+@app.route('/logout/')
+@authenticated
+def logout():
+    #session.clear()
+    session_id = request.cookies.get(SESSION_ID)
+    username=get_session_username(session_id)
+    print(username)
+    remove_session(session_id,username)
+    return redirect('/login')
 
 
 

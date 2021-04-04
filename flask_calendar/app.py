@@ -8,7 +8,7 @@ from typing import Dict
 
 
 import config  # noqa: F401
-from flask import Flask, Response, send_from_directory, flash, render_template, request, redirect, jsonify
+from flask import Flask, session, Response, send_from_directory, flash, render_template, request, redirect, jsonify
 from flask_calendar.db_setup import init_db, db_session
 from flask_sqlalchemy import SQLAlchemy
 from flask_calendar.actions import (

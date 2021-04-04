@@ -10,6 +10,7 @@ from flask_calendar.calendar_data import CalendarData
 from flask_calendar.constants import SESSION_ID
 from flask_calendar.gregorian_calendar import GregorianCalendar
 
+
 cache = SimpleCache()
 
 # see `app_utils` tests for details, but TL;DR is that urls must start with `http://` or `https://` to match
@@ -33,14 +34,22 @@ def authenticated(decorated_function: Callable) -> Any:
 def authorized(decorated_function: Callable) -> Any:
     @wraps(decorated_function)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        username = get_session_username(str(request.cookies.get(SESSION_ID)))
-        authorization = Authorization(calendar_data=CalendarData(data_folder=current_app.config["DATA_FOLDER"]))
-        if "calendar_id" not in kwargs:
-            raise ValueError("calendar_id")
-        calendar_id = str(kwargs["calendar_id"])
-        if not authorization.can_access(username=username, calendar_id=calendar_id):
-            abort(403)
-        return decorated_function(*args, **kwargs)
+        use_ldap=current_app.config["USE_LDAP"]
+        if use_ldap == 'true':
+            default_calendar=current_app.config["DEFAULT_CALENDAR"]
+            username = get_session_username(str(request.cookies.get(SESSION_ID)))
+            calendar_id = str(default_calendar)
+            return decorated_function(*args, **kwargs)
+
+        else:
+            username = get_session_username(str(request.cookies.get(SESSION_ID)))
+            authorization = Authorization(calendar_data=CalendarData(data_folder=current_app.config["DATA_FOLDER"]))
+            if "calendar_id" not in kwargs:
+                raise ValueError("calendar_id")
+            calendar_id = str(kwargs["calendar_id"])
+            if not authorization.can_access(username=username, calendar_id=calendar_id):
+                abort(403)
+            return decorated_function(*args, **kwargs)
 
     return wrapper
 
@@ -72,8 +81,12 @@ def is_session_valid(session_id: str) -> bool:
 
 
 def add_session(session_id: str, username: str) -> None:
+    #cache.set(session_id, username, timeout=2678400)  # 1 month
     cache.set(session_id, username, timeout=2678400)  # 1 month
-
+    
+def remove_session(session_id: str, username: str) -> None:
+    #cache.set(session_id, username, timeout=2678400)  # 1 month
+    cache.set(session_id, username, timeout=1)  # 1 month
 
 def get_session_username(session_id: str) -> str:
     return str(cache.get(session_id))
