@@ -6,7 +6,7 @@ from typing import Optional, cast  # noqa: F401
 
 
 import flask_calendar.constants as constants
-from flask import abort, current_app, g, jsonify, make_response, redirect, render_template, request
+from flask import abort, current_app, session, g, jsonify, make_response, redirect, render_template, request
 from flask_calendar.app_utils import (
     add_session,
     authenticated,
@@ -37,8 +37,13 @@ def get_authentication() -> Authentication:
 def index_action() -> Response:
     username = get_session_username(session_id=str(request.cookies.get(constants.SESSION_ID)))
     authentication = get_authentication()
-    user_data = authentication.user_data(username)
-    return redirect("/{}/".format(user_data["default_calendar"]))
+    use_ldap=current_app.config["USE_LDAP"]
+    if use_ldap == 'true':
+        default_calendar=current_app.config["DEFAULT_CALENDAR"]
+        return redirect("/{}/".format(default_calendar))
+    else:
+        user_data = authentication.user_data(username)
+        return redirect("/{}/".format(user_data["default_calendar"]))
 
 
 def login_action() -> Response:
@@ -51,6 +56,7 @@ def do_login_action() -> Response:
     authentication = get_authentication()
 
     if authentication.is_valid(username, password):
+        print("LDAP AUTH SUCCESS2")
         session_id = new_session_id()
         add_session(session_id, username)
         response = make_response(redirect("/"))
@@ -86,7 +92,11 @@ def main_calendar_action(calendar_id: str) -> Response:
     month = int(request.args.get("m", current_month))
     month = max(min(month, 12), 1)
     month_name = GregorianCalendar.MONTH_NAMES[month - 1]
-
+    #session['username'] = 'HELLO WORLD'
+    #session.pop('username', None)
+    #session['admin'] = 'You admin'
+    #print(session['username'])
+    #print(session['admin'])
     if current_app.config["HIDE_PAST_TASKS"]:
         view_past_tasks = False
     else:
@@ -134,215 +144,250 @@ def main_calendar_action(calendar_id: str) -> Response:
 @authenticated
 @authorized
 def new_task_action(calendar_id: str, year: int, month: int) -> Response:
-    GregorianCalendar.setfirstweekday(current_app.config["WEEK_STARTING_DAY"])
+    if session['admin'] == 'true' :
+
+        GregorianCalendar.setfirstweekday(current_app.config["WEEK_STARTING_DAY"])
 
 
-    current_day, current_month, current_year = GregorianCalendar.current_date()
-    year = max(min(int(year), current_app.config["MAX_YEAR"]), current_app.config["MIN_YEAR"])
-    month = max(min(int(month), 12), 1)
-    month_names = GregorianCalendar.MONTH_NAMES
+        current_day, current_month, current_year = GregorianCalendar.current_date()
+        year = max(min(int(year), current_app.config["MAX_YEAR"]), current_app.config["MIN_YEAR"])
+        month = max(min(int(month), 12), 1)
+        month_names = GregorianCalendar.MONTH_NAMES
 
-    if current_month == month and current_year == year:
-        day = current_day
+        if current_month == month and current_year == year:
+            day = current_day
+        else:
+            day = 1
+        day = int(request.args.get("day", day))
+
+        task = {
+            "date": CalendarData.date_for_frontend(year, month, day),
+            "is_all_day": True,
+            "repeats": False,
+            "details": "",
+        }
+
+        emojis_enabled = current_app.config.get("EMOJIS_ENABLED", False)
+
+        return cast(
+            Response,
+            render_template(
+                "task.html",
+                calendar_id=calendar_id,
+                year=year,
+                month=month,
+                min_year=current_app.config["MIN_YEAR"],
+                max_year=current_app.config["MAX_YEAR"],
+                month_names=month_names,
+                task=task,
+                base_url=current_app.config["BASE_URL"],
+                editing=False,
+                emojis_enabled=emojis_enabled,
+                button_default_color_value=current_app.config["BUTTON_CUSTOM_COLOR_VALUE"],
+                buttons_colors=current_app.config["BUTTONS_COLORS_LIST"],
+                buttons_emojis=current_app.config["BUTTONS_EMOJIS_LIST"] if emojis_enabled else tuple(),
+            ),
+        )
     else:
-        day = 1
-    day = int(request.args.get("day", day))
+        return redirect("/", code=302)
 
-    task = {
-        "date": CalendarData.date_for_frontend(year, month, day),
-        "is_all_day": True,
-        "repeats": False,
-        "details": "",
-    }
-
-    emojis_enabled = current_app.config.get("EMOJIS_ENABLED", False)
-
-    return cast(
-        Response,
-        render_template(
-            "task.html",
-            calendar_id=calendar_id,
-            year=year,
-            month=month,
-            min_year=current_app.config["MIN_YEAR"],
-            max_year=current_app.config["MAX_YEAR"],
-            month_names=month_names,
-            task=task,
-            base_url=current_app.config["BASE_URL"],
-            editing=False,
-            emojis_enabled=emojis_enabled,
-            button_default_color_value=current_app.config["BUTTON_CUSTOM_COLOR_VALUE"],
-            buttons_colors=current_app.config["BUTTONS_COLORS_LIST"],
-            buttons_emojis=current_app.config["BUTTONS_EMOJIS_LIST"] if emojis_enabled else tuple(),
-        ),
-    )
+        
 
 
 @authenticated
 @authorized
 def edit_task_action(calendar_id: str, year: int, month: int, day: int, task_id: int) -> Response:
-    month_names = GregorianCalendar.MONTH_NAMES
-    calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
+    if session['admin'] == 'true' :
 
-    repeats = request.args.get("repeats") == "1"
-    try:
-        if repeats:
-            task = calendar_data.repetitive_task_from_calendar(
-                calendar_id=calendar_id, year=year, month=month, task_id=int(task_id)
-            )
-        else:
-            task = calendar_data.task_from_calendar(
-                calendar_id=calendar_id, year=year, month=month, day=day, task_id=int(task_id),
-            )
-    except (FileNotFoundError, IndexError):
-        abort(404)
+        month_names = GregorianCalendar.MONTH_NAMES
+        calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
 
-    if task["details"] == "&nbsp;":
-        task["details"] = ""
+        repeats = request.args.get("repeats") == "1"
+        try:
+            if repeats:
+                task = calendar_data.repetitive_task_from_calendar(
+                    calendar_id=calendar_id, year=year, month=month, task_id=int(task_id)
+                )
+            else:
+                task = calendar_data.task_from_calendar(
+                    calendar_id=calendar_id, year=year, month=month, day=day, task_id=int(task_id),
+                )
+        except (FileNotFoundError, IndexError):
+            abort(404)
 
-    emojis_enabled = current_app.config.get("EMOJIS_ENABLED", False)
+        if task["details"] == "&nbsp;":
+            task["details"] = ""
 
-    return cast(
-        Response,
-        render_template(
-            "task.html",
-            calendar_id=calendar_id,
-            year=year,
-            month=month,
-            day=day,
-            min_year=current_app.config["MIN_YEAR"],
-            max_year=current_app.config["MAX_YEAR"],
-            month_names=month_names,
-            task=task,
-            base_url=current_app.config["BASE_URL"],
-            editing=True,
-            emojis_enabled=emojis_enabled,
-            button_default_color_value=current_app.config["BUTTON_CUSTOM_COLOR_VALUE"],
-            buttons_colors=current_app.config["BUTTONS_COLORS_LIST"],
-            buttons_emojis=current_app.config["BUTTONS_EMOJIS_LIST"] if emojis_enabled else tuple(),
-        ),
-    )
+        emojis_enabled = current_app.config.get("EMOJIS_ENABLED", False)
+
+        return cast(
+            Response,
+            render_template(
+                "task.html",
+                calendar_id=calendar_id,
+                year=year,
+                month=month,
+                day=day,
+                min_year=current_app.config["MIN_YEAR"],
+                max_year=current_app.config["MAX_YEAR"],
+                month_names=month_names,
+                task=task,
+                base_url=current_app.config["BASE_URL"],
+                editing=True,
+                emojis_enabled=emojis_enabled,
+                button_default_color_value=current_app.config["BUTTON_CUSTOM_COLOR_VALUE"],
+                buttons_colors=current_app.config["BUTTONS_COLORS_LIST"],
+                buttons_emojis=current_app.config["BUTTONS_EMOJIS_LIST"] if emojis_enabled else tuple(),
+            ),
+        )
+    else:
+        return redirect("/", code=302)
 
 
 @authenticated
 @authorized
 def update_task_action(calendar_id: str, year: str, month: str, day: str, task_id: str) -> Response:
-    # Logic is same as save + delete, could refactor but can wait until need to change any save/delete logic
-    from flask_calendar.main import getphone
+    if session['admin'] == 'true' :
+        # Logic is same as save + delete, could refactor but can wait until need to change any save/delete logic
+        from flask_calendar.main import getphone
 
-    calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
+        calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
 
-    # For creation of "updated" task use only form data
-    #title = request.form["title"].strip()
-    date = request.form.get("date", "")
-    Project = request.form["project"].strip()
-    Duty1 = request.form["duty1"].strip()
-    Duty2 = request.form["duty2"].strip()
-    phone1=getphone(Duty1)
-    phone2=getphone(Duty2)
-    title=(Project  + ' ' + Duty1 + ' ' + phone1)
-    #duty = request.form.get("duty", "")
-    if len(date) > 0:
-        fragments = re.split("-", date)
-        updated_year = int(fragments[0])  # type: Optional[int]
-        updated_month = int(fragments[1])  # type: Optional[int]
-        updated_day = int(fragments[2])  # type: Optional[int]
-    else:
-        updated_year = updated_month = updated_day = None
-    is_all_day = request.form.get("is_all_day", "0") == "1"
-    start_time = request.form["start_time"]
-    end_time = request.form.get("end_time", None)
-    details1 = request.form["details"].replace("\r", "").replace("\n", "<br>")
-    details=(Duty2 + ' ' + phone2 + ' ' + details1)
-    color = request.form["color"]
-    has_repetition = request.form.get("repeats", "0") == "1"
-    repetition_type = request.form.get("repetition_type", "")
-    repetition_subtype = request.form.get("repetition_subtype", "")
-    repetition_value = int(request.form["repetition_value"])  # type: int
+        # For creation of "updated" task use only form data
+        #title = request.form["title"].strip()
+        date = request.form.get("date", "")
+        Project = request.form["project"].strip()
+        Duty1 = request.form["duty1"].strip()
+        Duty2 = request.form["duty2"].strip()
+        phone1=getphone(Duty1)
+        phone2=getphone(Duty2)
+        title=(Project  + ' ' + Duty1 + ' ' + phone1)
+        #duty = request.form.get("duty", "")
+        if len(date) > 0:
+            fragments = re.split("-", date)
+            updated_year = int(fragments[0])  # type: Optional[int]
+            updated_month = int(fragments[1])  # type: Optional[int]
+            updated_day = int(fragments[2])  # type: Optional[int]
+        else:
+            updated_year = updated_month = updated_day = None
+        is_all_day = request.form.get("is_all_day", "0") == "1"
+        start_time = request.form["start_time"]
+        end_time = request.form.get("end_time", None)
+        details1 = request.form["details"].replace("\r", "").replace("\n", "<br>")
+        details=(Duty2 + ' ' + phone2 + ' ' + details1)
+        color = request.form["color"]
+        has_repetition = request.form.get("repeats", "0") == "1"
+        repetition_type = request.form.get("repetition_type", "")
+        repetition_subtype = request.form.get("repetition_subtype", "")
+        repetition_value = int(request.form["repetition_value"])  # type: int
 
-    calendar_data.create_task(
-        calendar_id=calendar_id,
-        year=updated_year,
-        month=updated_month,
-        day=updated_day,
-        title=title,
-        is_all_day=is_all_day,
-        start_time=start_time,
-        end_time=end_time,
-        details=details,
-        duty1=Duty1,
-        duty2=Duty2,
-        project=Project,
-        color=color,
-        has_repetition=has_repetition,
-        repetition_type=repetition_type,
-        repetition_subtype=repetition_subtype,
-        repetition_value=repetition_value,
-    )
-    # For deletion of old task data use only url data
-    calendar_data.delete_task(
-        calendar_id=calendar_id, year_str=year, month_str=month, day_str=day, task_id=int(task_id),
-    )
-
-    if updated_year is None:
-        return redirect("{}/{}/".format(current_app.config["BASE_URL"], calendar_id), code=302)
-    else:
-        return redirect(
-            "{}/{}/?y={}&m={}".format(current_app.config["BASE_URL"], calendar_id, updated_year, updated_month),
-            code=302,
+        calendar_data.create_task(
+            calendar_id=calendar_id,
+            year=updated_year,
+            month=updated_month,
+            day=updated_day,
+            title=title,
+            is_all_day=is_all_day,
+            start_time=start_time,
+            end_time=end_time,
+            details=details,
+            duty1=Duty1,
+            duty2=Duty2,
+            project=Project,
+            color=color,
+            has_repetition=has_repetition,
+            repetition_type=repetition_type,
+            repetition_subtype=repetition_subtype,
+            repetition_value=repetition_value,
         )
+        # For deletion of old task data use only url data
+        calendar_data.delete_task(
+            calendar_id=calendar_id, year_str=year, month_str=month, day_str=day, task_id=int(task_id),
+        )
+
+        if updated_year is None:
+            return redirect("{}/{}/".format(current_app.config["BASE_URL"], calendar_id), code=302)
+        else:
+            return redirect(
+                "{}/{}/?y={}&m={}".format(current_app.config["BASE_URL"], calendar_id, updated_year, updated_month),
+                code=302,
+            )
+    else:
+        return redirect("/", code=302)
 
 
 @authenticated
 @authorized
 def save_task_action(calendar_id: str) -> Response:
-    from flask_calendar.main import getphone
-    #title = request.form["title"].strip()
-    date = request.form.get("date", "")
-    startdate=date
-    enddate = request.form.get("enddate", "")
-    Project = request.form["project"].strip()
-    Duty1 = request.form["duty1"].strip()
-    Duty2 = request.form["duty2"].strip()
-    phone1=getphone(Duty1)
-    phone2=getphone(Duty2)
-    title=(Project  + ' ' + Duty1 + ' ' + phone1)
-    #Duty1 = 'test'
-    if len(date) > 0:
-        date_fragments = re.split("-", date)
-        year = int(date_fragments[0])  # type: Optional[int]
-        month = int(date_fragments[1])  # type: Optional[int]
-        day = int(date_fragments[2])  # type: Optional[int]
-    else:
-        year = month = day = None
-    is_all_day = request.form.get("is_all_day", "0") == "1"
-    start_time = request.form["start_time"]
-    end_time = request.form.get("end_time", None)
-    details1 = request.form["details"].replace("\r", "").replace("\n", "<br>")
-    details=(Duty2 + ' ' + phone2 + ' ' + details1)
-    color = request.form["color"]
-    has_repetition = request.form.get("repeats", "0") == "1"
-    repetition_type = request.form.get("repetition_type")
-    repetition_subtype = request.form.get("repetition_subtype")
-    repetition_value = int(request.form["repetition_value"])
+    if session['admin'] == 'true' :
+        from flask_calendar.main import getphone
+        #title = request.form["title"].strip()
+        date = request.form.get("date", "")
+        startdate=date
+        enddate = request.form.get("enddate", "")
+        Project = request.form["project"].strip()
+        Duty1 = request.form["duty1"].strip()
+        Duty2 = request.form["duty2"].strip()
+        phone1=getphone(Duty1)
+        phone2=getphone(Duty2)
+        title=(Project  + ' ' + Duty1 + ' ' + phone1)
+        #Duty1 = 'test'
+        if len(date) > 0:
+            date_fragments = re.split("-", date)
+            year = int(date_fragments[0])  # type: Optional[int]
+            month = int(date_fragments[1])  # type: Optional[int]
+            day = int(date_fragments[2])  # type: Optional[int]
+        else:
+            year = month = day = None
+        is_all_day = request.form.get("is_all_day", "0") == "1"
+        start_time = request.form["start_time"]
+        end_time = request.form.get("end_time", None)
+        details1 = request.form["details"].replace("\r", "").replace("\n", "<br>")
+        details=(Duty2 + ' ' + phone2 + ' ' + details1)
+        color = request.form["color"]
+        has_repetition = request.form.get("repeats", "0") == "1"
+        repetition_type = request.form.get("repetition_type")
+        repetition_subtype = request.form.get("repetition_subtype")
+        repetition_value = int(request.form["repetition_value"])
 
-    calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
+        calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
 
-    if date != enddate:
-        from datetime import date, timedelta
-        
-        startdate_fragments = re.split("-", startdate)
-        enddate_fragments = re.split("-", enddate)
-        sdate = date(int(startdate_fragments[0]), int(startdate_fragments[1]), int(startdate_fragments[2]))   # start date
-        edate = date(int(enddate_fragments[0]), int(enddate_fragments[1]), int(enddate_fragments[2]))   # end date
-        delta = edate - sdate       # as timedelta
-        for i in range(delta.days + 1):
-            currentdate = re.split("-", str(sdate + timedelta(days=i)))
+        if date != enddate:
+            from datetime import date, timedelta
             
-            year = int(currentdate[0])  # type: Optional[int]
-            month = int(currentdate[1])  # type: Optional[int]
-            day = int(currentdate[2])  # type: Optional[int]
+            startdate_fragments = re.split("-", startdate)
+            enddate_fragments = re.split("-", enddate)
+            sdate = date(int(startdate_fragments[0]), int(startdate_fragments[1]), int(startdate_fragments[2]))   # start date
+            edate = date(int(enddate_fragments[0]), int(enddate_fragments[1]), int(enddate_fragments[2]))   # end date
+            delta = edate - sdate       # as timedelta
+            for i in range(delta.days + 1):
+                currentdate = re.split("-", str(sdate + timedelta(days=i)))
+                
+                year = int(currentdate[0])  # type: Optional[int]
+                month = int(currentdate[1])  # type: Optional[int]
+                day = int(currentdate[2])  # type: Optional[int]
 
+                calendar_data.create_task(
+                    calendar_id=calendar_id,
+                    year=year,
+                    month=month,
+                    day=day,
+                    title=title,
+                    is_all_day=is_all_day,
+                    start_time=start_time,
+                    end_time=end_time,
+                    details=details,
+                    duty1=Duty1,
+                    duty2=Duty2,
+                    project=Project,
+                    color=color,
+                    has_repetition=has_repetition,
+                    repetition_type=repetition_type,
+                    repetition_subtype=repetition_subtype,
+                    repetition_value=repetition_value,
+                )
+        else:
+            #
             calendar_data.create_task(
                 calendar_id=calendar_id,
                 year=year,
@@ -355,71 +400,62 @@ def save_task_action(calendar_id: str) -> Response:
                 details=details,
                 duty1=Duty1,
                 duty2=Duty2,
-                project=Project,
+                project=Project,            
                 color=color,
                 has_repetition=has_repetition,
                 repetition_type=repetition_type,
                 repetition_subtype=repetition_subtype,
                 repetition_value=repetition_value,
             )
-    else:
-        #
-        calendar_data.create_task(
-            calendar_id=calendar_id,
-            year=year,
-            month=month,
-            day=day,
-            title=title,
-            is_all_day=is_all_day,
-            start_time=start_time,
-            end_time=end_time,
-            details=details,
-            duty1=Duty1,
-            duty2=Duty2,
-            project=Project,            
-            color=color,
-            has_repetition=has_repetition,
-            repetition_type=repetition_type,
-            repetition_subtype=repetition_subtype,
-            repetition_value=repetition_value,
-        )
 
-    if year is None:
-        return redirect("{}/{}/".format(current_app.config["BASE_URL"], calendar_id), code=302)
+        if year is None:
+            return redirect("{}/{}/".format(current_app.config["BASE_URL"], calendar_id), code=302)
+        else:
+            return redirect("{}/{}/?y={}&m={}".format(current_app.config["BASE_URL"], calendar_id, year, month), code=302,)
     else:
-        return redirect("{}/{}/?y={}&m={}".format(current_app.config["BASE_URL"], calendar_id, year, month), code=302,)
+        return redirect("/", code=302)
 
 
 @authenticated
 @authorized
 def delete_task_action(calendar_id: str, year: str, month: str, day: str, task_id: str) -> Response:
-    calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
-    calendar_data.delete_task(
-        calendar_id=calendar_id, year_str=year, month_str=month, day_str=day, task_id=int(task_id),
-    )
+    if session['admin'] == 'true' :
 
-    return cast(Response, jsonify({}))
+        calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
+        calendar_data.delete_task(
+            calendar_id=calendar_id, year_str=year, month_str=month, day_str=day, task_id=int(task_id),
+        )
+
+        return cast(Response, jsonify({}))
+    else:
+        return redirect("/", code=302)
 
 
 @authenticated
 @authorized
 def update_task_day_action(calendar_id: str, year: str, month: str, day: str, task_id: str) -> Response:
-    new_day = request.data.decode("utf-8")
+    if session['admin'] == 'true' :
+        new_day = request.data.decode("utf-8")
 
-    calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
-    calendar_data.update_task_day(
-        calendar_id=calendar_id, year_str=year, month_str=month, day_str=day, task_id=int(task_id), new_day_str=new_day,
-    )
+        calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
+        calendar_data.update_task_day(
+            calendar_id=calendar_id, year_str=year, month_str=month, day_str=day, task_id=int(task_id), new_day_str=new_day,
+        )
 
-    return cast(Response, jsonify({}))
+        return cast(Response, jsonify({}))
+    else:
+        return redirect("/", code=302)
 
 
 @authenticated
 @authorized
 def hide_repetition_task_instance_action(calendar_id: str, year: str, month: str, day: str, task_id: str) -> Response:
-    calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
-    calendar_data.hide_repetition_task_instance(
-        calendar_id=calendar_id, year_str=year, month_str=month, day_str=day, task_id_str=task_id,
-    )
+    if session['admin'] == 'true' :
+        calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
+        calendar_data.hide_repetition_task_instance(
+            calendar_id=calendar_id, year_str=year, month_str=month, day_str=day, task_id_str=task_id,
+        )
 
-    return cast(Response, jsonify({}))
+        return cast(Response, jsonify({}))
+    else:
+        return redirect("/", code=302)

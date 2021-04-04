@@ -11,11 +11,14 @@
 
     <div id="statusbar" class="">Processing...</div>
 
+
     <div class="header">
+        {% if session['admin'] == 'true' %}
         <input type="button" class="header-button" value="+"
             onclick="window.location='/{{ calendar_id }}/{{ year }}/{{ month}}/new_task'" title="New task" />
             <input type="button" class="header-button" value="-"
-            onclick="window.location='/{{ calendar_id }}/{{ year }}/{{ month}}/new_task'" title="Delete task" />            
+            onclick="window.location='/{{ calendar_id }}/{{ year }}/{{ month}}/new_task'" title="Delete task" />  
+            {% endif %}          
         <input type="button" class="header-button" value="&lt;" onclick="window.location='{{ previous_month_link }}'"
             title="Previous month" />
         <input type="button" class="header-button" value="&gt;" onclick="window.location='{{ next_month_link }}'"
@@ -28,16 +31,17 @@
                 <a href="/{{ calendar_id }}/">back to current</a>
             </div>
         {% endif %}
-        
+        <a href="{{ url_for('.logout') }}"><button id="toggle-past-events" class="toggle-past-events" style="margin-right: 5px;">Logout</button></a>
         {% if display_view_past_button %}
            
-        <input id="toggle-past-events" class="toggle-past-events" type="button" value="View Past" onclick="ToggleViewPastTasks();" />
+        <input id="toggle-past-events" class="toggle-past-events" type="button" value="View Past" style="margin-right: 5px;" onclick="ToggleViewPastTasks();" />
             
         {% endif %}
         
-        
+        {% if session['admin'] == 'true' %}
         <a href="{{ url_for('.show_dutys') }}"><button id="toggle-past-events" class="toggle-past-events" style="margin-right: 5px;">Manage Duty</button></a>
-         
+        {% endif %}
+        
         
     </div>
 

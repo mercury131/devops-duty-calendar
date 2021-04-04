@@ -4,7 +4,11 @@ import os
 import time
 from typing import Dict, cast
 
+import ldap
+
 from cachelib.simple import SimpleCache
+
+from flask import  current_app, session
 
 cache = SimpleCache()
 
@@ -21,17 +25,79 @@ class Authentication:
         self.failed_login_delay_base = failed_login_delay_base
         self.data_folder = data_folder
 
+    def ldap_auth(self, username, password, check):
+        #
+        check = check
+        if check == "checkadmin":
+            checkadmin = "checkadmin"
+        else:
+            checkadmin = ''
+        try:
+            CACert = current_app.config["CACERT"]
+            ldapserver = current_app.config["LDAPSERVER"]
+            username = username
+            password = password
+            ou = current_app.config["OU"]
+            domain = current_app.config["DOMAIN"]
+            allowgroup_ro = current_app.config["ALLOWGROUP_RO"]
+            allowgroup_rw = current_app.config["ALLOWGROUP_RW"]
+            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, CACert)
+            ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_HARD)
+            # Disable ssl check
+            #ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
+            connect = ldap.initialize("ldaps://" + ldapserver)
+            connect.set_option(ldap.OPT_REFERRALS, 0)
+            connect.set_option(ldap.OPT_PROTOCOL_VERSION, 3)
+            connect.set_option(ldap.OPT_X_TLS,ldap.OPT_X_TLS_DEMAND)
+            connect.set_option( ldap.OPT_X_TLS_DEMAND, True )
+            connect.set_option( ldap.OPT_DEBUG_LEVEL, 255 )
+            connect.simple_bind_s(username, password)
+            result = connect.search_s(ou,ldap.SCOPE_SUBTREE,('userPrincipalName=' + username + '@' + domain),['memberOf'])
+            groups  = result[0][1]['memberOf']
+            for group in groups:
+                if str(group)[2:][:-1] == allowgroup_ro:
+                    return True
+                elif str(group)[2:][:-1] == allowgroup_rw:
+                    if checkadmin == "checkadmin":
+                        return "admin"
+                    else:
+                        return True
+        except Exception:
+            return False
+
+
     def is_valid(self, username: str, password: str) -> bool:
-        if username not in self.contents:
-            self._failed_attempt(username)
-            return False
-        if self._hash_password(password) != self.contents[username]["password"]:
-            self._failed_attempt(username)
-            return False
-        return True
+        
+        use_ldap=current_app.config["USE_LDAP"]
+        if use_ldap == 'true':
+            #return True
+            auth_in_ldap=self.ldap_auth(str(username), str(password), '')
+            if auth_in_ldap is True:
+                print(username, "SUCCESS AUTH!!!!!!")
+                is_admin=self.ldap_auth(str(username), str(password), str('checkadmin'))
+                print(is_admin)
+                if is_admin == 'admin' :
+                    session['admin'] = 'true'
+                else:
+                    session['admin'] = 'no'
+                return True
+            else:
+                return False
+        else:
+            if username not in self.contents:
+                self._failed_attempt(username)
+                return False
+            if self._hash_password(password) != self.contents[username]["password"]:
+                self._failed_attempt(username)
+                return False
+            return True
 
     def user_data(self, username: str) -> Dict:
-        return cast(Dict, self.contents[username])
+        use_ldap=current_app.config["USE_LDAP"]
+        if use_ldap == 'true':
+            return username
+        else:
+            return cast(Dict, self.contents[username])
 
     def add_user(self, username: str, plaintext_password: str, default_calendar: str) -> None:
         if username in self.contents:

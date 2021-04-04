@@ -17,6 +17,15 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///duty.db'
 
 SECRET_KEY = "justkey"
 
+USE_LDAP = "true"
+CACERT = '/home/darkwind/flask-ldap/ca_name.pem'
+LDAPSERVER = "srv1.test.com"
+OU = "dc=test,dc=com"
+DOMAIN = "TEST.COM"
+ALLOWGROUP_RO = "CN=duty-access-ro,CN=Users,DC=test,DC=com"
+ALLOWGROUP_RW = "CN=duty-access,CN=Users,DC=test,DC=com"
+DEFAULT_CALENDAR = "sample"
+
 WEEK_STARTING_DAY = constants.WEEK_START_DAY_MONDAY
 
 MONTHS_TO_EXPORT = 6  # currently only used for ICS export
