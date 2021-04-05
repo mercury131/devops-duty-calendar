@@ -1,12 +1,16 @@
 from flask_calendar.app import app
 from flask_calendar.db_setup import init_db, db_session
 from flask_calendar.forms import SearchForm, Duty
-from flask import flash, session, render_template, request, redirect, jsonify
+from flask import flash, current_app, session, render_template, request, redirect, jsonify
 from flask_calendar.models import Project
 from flask_calendar.tables import Results
 from flask_calendar.app_utils import remove_session , get_session_username
 from flask_calendar.constants import SESSION_ID
 from flask_calendar.authentication import Authentication
+from flask_calendar.calendar_data import CalendarData
+from flask_calendar.gregorian_calendar import GregorianCalendar
+from flask_calendar.call_providers import send_to_telegram
+import json
 from flask_calendar.app_utils import (
     add_session,
     authenticated,
@@ -164,6 +168,46 @@ def logout():
     print(username)
     remove_session(session_id,username)
     return redirect('/login')
+
+@app.route('/call/<prj>')
+def call(prj):
+    project=prj
+    current_day, current_month, current_year = GregorianCalendar.current_date()
+    year = int(request.args.get("y", current_year))
+    year = max(min(year, current_app.config["MAX_YEAR"]), current_app.config["MIN_YEAR"])
+    month = int(request.args.get("m", current_month))
+    month = max(min(month, 12), 1)
+    #month_name = GregorianCalendar.MONTH_NAMES[month - 1]
+    calendar_id = current_app.config["DEFAULT_CALENDAR"]
+    calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
+    data = calendar_data.load_calendar(calendar_id)
+    tasks = calendar_data.tasks_from_calendar(year, month, data)
+    jsondata=json.loads(json.dumps(tasks))
+    for key in jsondata:
+        filterlist=key
+
+    found=list(filter(lambda x:x["project"]==project,jsondata[filterlist][str(current_day)]))
+    if len(found) > 1:
+        for x in found:
+            duty1=x['duty1']
+            duty2=x['duty2']
+    else:
+        duty1=found[0]['duty1']
+        duty2=found[0]['duty2']
+
+    phone1=getphone(duty1)
+    phone2=getphone(duty2)
+    if current_app.config["USE_TELEGRAM"] == 'yes':
+        phone = '+' + phone1
+        message=current_app.config["TELEGRAM_MESSAGE"] + " Project: " + project
+        api_id=current_app.config["TELEGRAM_API_ID"]
+        api_hash=current_app.config["TELEGRAM_API_HASH"]
+        token=current_app.config["TELEGRAM_BOT_TOKEN"]
+        try:
+            send_to_telegram(phone,message,api_id,api_hash,token)
+            return jsonify("Send message to:",phone1,"complete successfully")
+        except Exception:
+            return jsonify("Error while sending message to:",phone1,"detected","Check Telegram tokens or phone number format"), 500
 
 
 

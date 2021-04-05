@@ -24,7 +24,17 @@ OU = "dc=test,dc=com"
 DOMAIN = "TEST.COM"
 ALLOWGROUP_RO = "CN=duty-access-ro,CN=Users,DC=test,DC=com"
 ALLOWGROUP_RW = "CN=duty-access,CN=Users,DC=test,DC=com"
+
 DEFAULT_CALENDAR = "sample"
+
+# Callback API Settings
+
+USE_TELEGRAM = 'yes'
+
+TELEGRAM_API_ID = ''
+TELEGRAM_API_HASH = ''
+TELEGRAM_BOT_TOKEN = ''
+TELEGRAM_MESSAGE = 'Alert Detected!'
 
 WEEK_STARTING_DAY = constants.WEEK_START_DAY_MONDAY
 
