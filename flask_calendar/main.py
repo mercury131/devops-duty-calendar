@@ -9,7 +9,7 @@ from flask_calendar.constants import SESSION_ID
 from flask_calendar.authentication import Authentication
 from flask_calendar.calendar_data import CalendarData
 from flask_calendar.gregorian_calendar import GregorianCalendar
-from flask_calendar.call_providers import send_to_telegram
+from flask_calendar.call_providers import send_to_telegram, send_to_slack
 import json
 from flask_calendar.app_utils import (
     add_session,
@@ -208,6 +208,18 @@ def call(prj):
             return jsonify("Send message to:",phone1,"complete successfully")
         except Exception:
             return jsonify("Error while sending message to:",phone1,"detected","Check Telegram tokens or phone number format"), 500
+    
+    if current_app.config["USE_SLACK"] == 'yes':
+        duty = duty1
+        message = current_app.config["SLACK_MESSAGE"]
+        slackchannel=project
+        apitoken=current_app.config["SLACK_APP_TOKEN"]
+        try:
+            send_to_slack(duty,message,slackchannel,apitoken)
+            return jsonify("Send message to:",duty,(" in slack cnannel #" + project + " complete successfully"))
+        except Exception:
+            return jsonify("Error while sending message to:",duty,"detected","Check Slack tokens or userID format"), 500
+
 
 
 

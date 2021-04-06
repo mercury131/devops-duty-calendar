@@ -1,32 +1,29 @@
-from app import app
-from db_setup import init_db, db_session
-from forms import SearchForm, Duty
-from flask import flash, render_template, request, redirect, jsonify
-from models import Project
-from tables import Results
+import os
+from slack import WebClient
+from slack.errors import SlackApiError
 
+duty = ""
+message = "TEST There!"
+slackchannel=''
+apitoken=''
 
-import sys
-sys.path.append('../')
+def send_to_slack(duty,message,slackchannel,apitoken):
 
-init_db()
-#projects = db_session.query(Project).filter(Project.project).all()
-id=1
-projects = db_session.query(Project.project).all()
-projects = [item[0] for item in projects]
-print(projects)
+    client = WebClient(token=apitoken)
 
-#for project in projects:
-    #print(project)
+    user = ("<@" + duty + '>')
+    allmessage = (user + ' ' +  message)
 
-prj='DDPS'
-dutys = db_session.query(Project.name).filter(Project.project==prj).all()
-dutys = [item[0] for item in dutys]
-#print(dutys)
-jsonify({'DUTY': dutys})
+    try:
+        response = client.chat_postMessage(
+            channel=('#' + slackchannel),
+            text=allmessage)
+        response["message"]["text"] == allmessage
+    except SlackApiError as e:
+        # You will get a SlackApiError if "ok" is False
+        assert e.response["ok"] is False
+        assert e.response["error"]  # str like 'invalid_auth', 'channel_not_found'
+        print(f"Got an error: {e.response['error']}")
 
-#for duty in dutys:
-#    print(duty)
+send_to_slack(duty,message,slackchannel,apitoken)
 
-#for project in projects:
-#    print(project.__dict__)

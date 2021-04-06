@@ -3,6 +3,9 @@ import asyncio
 from telethon.sync import TelegramClient
 from telethon.tl.types import InputPeerUser, InputPeerChannel
 from telethon import TelegramClient, sync, events
+import os
+from slack import WebClient
+from slack.errors import SlackApiError
   
 def send_to_telegram(phone,message,api_id,api_hash,token):
     # get your api_id, api_hash, token
@@ -74,3 +77,21 @@ def auth_telegram(phone,message,api_id,api_hash,token):
     # disconnecting the telegram session 
     client.disconnect()
 
+
+def send_to_slack(duty,message,slackchannel,apitoken):
+
+    client = WebClient(token=apitoken)
+
+    user = ("<@" + duty + '>')
+    allmessage = (user + ' ' +  message)
+
+    try:
+        response = client.chat_postMessage(
+            channel=('#' + slackchannel),
+            text=allmessage)
+        response["message"]["text"] == allmessage
+    except SlackApiError as e:
+        # You will get a SlackApiError if "ok" is False
+        assert e.response["ok"] is False
+        assert e.response["error"]  # str like 'invalid_auth', 'channel_not_found'
+        print(f"Got an error: {e.response['error']}")

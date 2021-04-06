@@ -29,12 +29,15 @@ DEFAULT_CALENDAR = "sample"
 
 # Callback API Settings
 
-USE_TELEGRAM = 'yes'
-
+USE_TELEGRAM = 'no'
 TELEGRAM_API_ID = ''
 TELEGRAM_API_HASH = ''
 TELEGRAM_BOT_TOKEN = ''
 TELEGRAM_MESSAGE = 'Alert Detected!'
+
+USE_SLACK = 'no'
+SLACK_APP_TOKEN= ''
+SLACK_MESSAGE = 'Alert Detected!'
 
 WEEK_STARTING_DAY = constants.WEEK_START_DAY_MONDAY
 
