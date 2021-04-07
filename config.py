@@ -39,6 +39,16 @@ USE_SLACK = 'no'
 SLACK_APP_TOKEN= ''
 SLACK_MESSAGE = 'Alert Detected!'
 
+USE_EMAIL = 'no'
+SMTP_SERVER = ''
+SMTP_PORT = '587'
+SMTP_LOGIN = ''
+SMTP_PASSWORD = ''
+SENDER_ADDRESS = ''
+EMAIL_MESSAGE = 'Alert Detected!'
+EMAIL_SUBJECT = 'Alert Detected!'
+
+
 WEEK_STARTING_DAY = constants.WEEK_START_DAY_MONDAY
 
 MONTHS_TO_EXPORT = 6  # currently only used for ICS export

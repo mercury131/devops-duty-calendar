@@ -9,7 +9,7 @@ from flask_calendar.constants import SESSION_ID
 from flask_calendar.authentication import Authentication
 from flask_calendar.calendar_data import CalendarData
 from flask_calendar.gregorian_calendar import GregorianCalendar
-from flask_calendar.call_providers import send_to_telegram, send_to_slack
+from flask_calendar.call_providers import send_to_telegram, send_to_slack, send_email
 import json
 from flask_calendar.app_utils import (
     add_session,
@@ -28,6 +28,12 @@ def getphone(duty):
     phones = [item[0] for item in phones]
     phone=phones[0]
     return phone
+
+def getemail(duty):
+    emails = db_session.query(Project.email).filter(Project.name==duty).all()
+    emails = [item[0] for item in emails]
+    email=emails[0]
+    return email
 
 
 @app.route('/allduty')
@@ -219,6 +225,37 @@ def call(prj):
             return jsonify("Send message to:",duty,(" in slack cnannel #" + project + " complete successfully"))
         except Exception:
             return jsonify("Error while sending message to:",duty,"detected","Check Slack tokens or userID format"), 500
+
+    if current_app.config["USE_EMAIL"] == 'yes':
+        email1=getemail(duty1)
+        subject = (current_app.config["EMAIL_SUBJECT"] + " Project: " + project)
+        text = current_app.config["EMAIL_MESSAGE"]
+        receiver_address = email1
+        smtp_server = current_app.config["SMTP_SERVER"]
+        smtp_port = current_app.config["SMTP_PORT"]
+        sender_address = current_app.config["SENDER_ADDRESS"]
+        smtp_server_login = current_app.config["SMTP_LOGIN"]
+        smtp_server_password = current_app.config["SMTP_PASSWORD"]
+        
+        if smtp_server_login == '':
+            try:
+                send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_address)
+                return jsonify("Send email message to:",email1," complete successfully")
+            except Exception as ex:
+                print(ex)
+                return jsonify("Error while sending email message to:",email1,"detected","Check SMTP server settings"), 500
+        else:
+            #
+            try:
+                send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_address,smtp_login=smtp_server_login,smtp_password=smtp_server_password)
+                return jsonify("Send email message to:",email1," complete successfully")
+            except Exception as ex:
+                print(ex)
+                return jsonify("Error while sending email message to:",email1,"detected","Check SMTP server settings"), 500
+
+
+
+
 
 
 
