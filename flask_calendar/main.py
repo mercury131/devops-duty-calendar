@@ -711,6 +711,13 @@ def auth_api(username,token):
     else:
         return False   
 
+
+@app.route('/reports/check/')
+def checkrep():
+    
+    return jsonify("test!")
+
+
 if __name__ == "__main__":
 
     app.run(debug=app.config["DEBUG"], host=app.config["HOST_IP"])
