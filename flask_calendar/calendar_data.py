@@ -2,6 +2,7 @@ import json
 import os
 import random
 import time
+from time import sleep
 from datetime import datetime
 from typing import Dict, List, Optional, cast
 
@@ -15,6 +16,9 @@ KEY_NORMAL_TASK = "normal"
 KEY_REPETITIVE_TASK = "repetition"
 KEY_REPETITIVE_HIDDEN_TASK = "hidden_repetition"
 
+def current_milli_time():
+    sleep(0.005)
+    return round(time.time() * 1000)
 
 class CalendarData:
 
@@ -217,7 +221,7 @@ class CalendarData:
         data = self.load_calendar(calendar_id)
 
         new_task = {
-            "id": int(time.time()),
+            "id": int(current_milli_time()),
             "color": color,
             "start_time": start_time,
             "end_time": end_time if end_time else start_time,

@@ -10,3 +10,9 @@
     {% endif %}
     </dd>
 {% endmacro %}
+
+
+{% macro render_field_prj(field) %}
+{{ field.label }}
+{{ field(**kwargs)|safe }}
+{% endmacro %}

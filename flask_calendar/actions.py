@@ -2,7 +2,9 @@ import re
 
 from typing import Optional, cast  # noqa: F401
 
+import time 
 
+from time import sleep
 
 
 import flask_calendar.constants as constants
@@ -56,7 +58,6 @@ def do_login_action() -> Response:
     authentication = get_authentication()
 
     if authentication.is_valid(username, password):
-        print("LDAP AUTH SUCCESS2")
         session_id = new_session_id()
         add_session(session_id, username)
         response = make_response(redirect("/"))
@@ -92,11 +93,6 @@ def main_calendar_action(calendar_id: str) -> Response:
     month = int(request.args.get("m", current_month))
     month = max(min(month, 12), 1)
     month_name = GregorianCalendar.MONTH_NAMES[month - 1]
-    #session['username'] = 'HELLO WORLD'
-    #session.pop('username', None)
-    #session['admin'] = 'You admin'
-    #print(session['username'])
-    #print(session['admin'])
     if current_app.config["HIDE_PAST_TASKS"]:
         view_past_tasks = False
     else:
@@ -262,7 +258,6 @@ def update_task_action(calendar_id: str, year: str, month: str, day: str, task_i
         phone1=getphone(Duty1)
         phone2=getphone(Duty2)
         title=(Project  + ' ' + Duty1 + ' ' + phone1)
-        #duty = request.form.get("duty", "")
         if len(date) > 0:
             fragments = re.split("-", date)
             updated_year = int(fragments[0])  # type: Optional[int]
@@ -331,7 +326,6 @@ def save_task_action(calendar_id: str) -> Response:
         phone1=getphone(Duty1)
         phone2=getphone(Duty2)
         title=(Project  + ' ' + Duty1 + ' ' + phone1)
-        #Duty1 = 'test'
         if len(date) > 0:
             date_fragments = re.split("-", date)
             year = int(date_fragments[0])  # type: Optional[int]
@@ -349,10 +343,12 @@ def save_task_action(calendar_id: str) -> Response:
         repetition_type = request.form.get("repetition_type")
         repetition_subtype = request.form.get("repetition_subtype")
         repetition_value = int(request.form["repetition_value"])
+        repetition_value_start = int(request.form["repetition_value_monthday"])
+        repetition_value_end = int(request.form["repetition_value_monthday_end"])
 
         calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
-
-        if date != enddate:
+        
+        if date != enddate and has_repetition == 0:
             from datetime import date, timedelta
             
             startdate_fragments = re.split("-", startdate)
@@ -386,6 +382,28 @@ def save_task_action(calendar_id: str) -> Response:
                     repetition_subtype=repetition_subtype,
                     repetition_value=repetition_value,
                 )
+        elif repetition_value_start != repetition_value_end:
+            for rep in range(repetition_value_start,(repetition_value_end + 1)):
+                #
+                calendar_data.create_task(
+                    calendar_id=calendar_id,
+                    year=year,
+                    month=month,
+                    day=day,
+                    title=title,
+                    is_all_day=is_all_day,
+                    start_time=start_time,
+                    end_time=end_time,
+                    details=details,
+                    duty1=Duty1,
+                    duty2=Duty2,
+                    project=Project,            
+                    color=color,
+                    has_repetition=has_repetition,
+                    repetition_type=repetition_type,
+                    repetition_subtype=repetition_subtype,
+                    repetition_value=rep,
+                )                
         else:
             #
             calendar_data.create_task(

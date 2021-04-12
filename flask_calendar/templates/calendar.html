@@ -37,7 +37,11 @@
         <input id="toggle-past-events" class="toggle-past-events" type="button" value="View Past" style="margin-right: 5px;" onclick="ToggleViewPastTasks();" />
             
         {% endif %}
-        
+
+        {% if session['admin'] == 'true' %}
+        <a href="{{ url_for('.show_apisettings') }}"><button id="toggle-past-events" class="toggle-past-events" style="margin-right: 5px;">📲</button></a>
+        {% endif %}
+
         {% if session['admin'] == 'true' %}
         <a href="{{ url_for('.show_dutys') }}"><button id="toggle-past-events" class="toggle-past-events" style="margin-right: 5px;">Manage Duty</button></a>
         {% endif %}

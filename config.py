@@ -24,7 +24,81 @@ OU = "dc=test,dc=com"
 DOMAIN = "TEST.COM"
 ALLOWGROUP_RO = "CN=duty-access-ro,CN=Users,DC=test,DC=com"
 ALLOWGROUP_RW = "CN=duty-access,CN=Users,DC=test,DC=com"
+
 DEFAULT_CALENDAR = "sample"
+
+# Callback API Settings
+
+USE_TEST_ROUTE = 'yes'
+
+USE_TELEGRAM = 'no'
+TELEGRAM_API_ID = ''
+TELEGRAM_API_HASH = ''
+TELEGRAM_BOT_TOKEN = ''
+TELEGRAM_MESSAGE = 'Alert Detected!'
+
+USE_SLACK = 'no'
+SLACK_APP_TOKEN= ''
+SLACK_MESSAGE = 'Alert Detected!'
+
+USE_EMAIL = 'no'
+SMTP_SERVER = ''
+SMTP_PORT = '587'
+SMTP_LOGIN = ''
+SMTP_PASSWORD = ''
+SENDER_ADDRESS = ''
+EMAIL_MESSAGE = 'Alert Detected!'
+EMAIL_SUBJECT = 'Alert Detected!'
+
+USE_REST1 = 'yes'
+# <DUTY1> <DUTY2> <PROJECT> <EMAIL1> <EMAIL2> <ARG1> <ARG2> <ARG3> <ARG4>
+REST1_URL = 'http://0.0.0.0:5000/test/<DUTY1>&<DUTY2>@out&extension=<ARG1>&context=play&timeout=900'
+REST1_METHOD = 'POST'
+REST1_AUTH = 'yes'
+REST1_USER = 'admin'
+REST1_PASSWORD = '12345'
+REST1_ARG1 = 'hello-world'
+REST1_ARG2 = ''
+REST1_ARG3 = ''
+REST1_ARG4 = ''
+
+USE_REST2 = 'no'
+# <DUTY1> <DUTY2> <PROJECT> <EMAIL1> <EMAIL2> <ARG1> <ARG2> <ARG3> <ARG4>
+REST2_URL = 'http://'
+REST2_METHOD = 'POST'
+REST2_AUTH = ''
+REST2_USER = ''
+REST2_PASSWORD = ''
+REST2_ARG1 = ''
+REST2_ARG2 = ''
+REST2_ARG3 = ''
+REST2_ARG4 = ''
+
+
+USE_REST3 = 'no'
+# <DUTY1> <DUTY2> <PROJECT> <EMAIL1> <EMAIL2> <ARG1> <ARG2> <ARG3> <ARG4>
+REST3_URL = 'http://'
+REST3_METHOD = 'POST'
+REST3_AUTH = ''
+REST3_USER = ''
+REST3_PASSWORD = ''
+REST3_ARG1 = ''
+REST3_ARG2 = ''
+REST3_ARG3 = ''
+REST3_ARG4 = ''
+
+
+USE_REST4 = 'no'
+# <DUTY1> <DUTY2> <PROJECT> <EMAIL1> <EMAIL2> <ARG1> <ARG2> <ARG3> <ARG4>
+REST4_URL = 'http://'
+REST4_METHOD = 'POST'
+REST4_AUTH = ''
+REST4_USER = ''
+REST4_PASSWORD = ''
+REST4_ARG1 = ''
+REST4_ARG2 = ''
+REST4_ARG3 = ''
+REST4_ARG4 = ''
 
 WEEK_STARTING_DAY = constants.WEEK_START_DAY_MONDAY
 

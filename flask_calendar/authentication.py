@@ -73,9 +73,7 @@ class Authentication:
             #return True
             auth_in_ldap=self.ldap_auth(str(username), str(password), '')
             if auth_in_ldap is True:
-                print(username, "SUCCESS AUTH!!!!!!")
                 is_admin=self.ldap_auth(str(username), str(password), str('checkadmin'))
-                print(is_admin)
                 if is_admin == 'admin' :
                     session['admin'] = 'true'
                 else:
