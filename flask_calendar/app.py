@@ -26,6 +26,8 @@ from flask_calendar.actions import (
 )
 from flask_calendar.app_utils import task_details_for_markup
 
+#for test
+from flask_htpasswd import HtPasswdAuth
 
 def get_db(app):
     db = SQLAlchemy(app)
@@ -37,6 +39,13 @@ def create_app(config_overrides: Dict = None) -> Flask:
     app.config.from_object("config")
     app.secret_key = app.config["SECRET_KEY"]
     
+
+
+    if app.config["USE_TEST_ROUTE"] == 'yes':
+        # for test
+        app.config['FLASK_HTPASSWD_PATH'] = '/home/darkwind/flask-calendar/.htpasswd'
+        app.config['FLASK_SECRET'] = 'secure me!'
+        htpasswd = HtPasswdAuth(app)
 
     if config_overrides is not None:
         app.config.from_mapping(config_overrides)
@@ -53,6 +62,16 @@ def create_app(config_overrides: Dict = None) -> Flask:
         return send_from_directory(
             os.path.join(app.root_path, "static"), "favicon.ico", mimetype="image/vnd.microsoft.icon",
         )
+    
+    if app.config["USE_TEST_ROUTE"] == 'yes':
+        @app.route('/test/<PARAM1>&<PARAM2>@<PARAM3>&extension=<PARAM4>&context=<PARAM5>&timeout=<PARAM6>', methods=['GET', 'POST'])
+        @htpasswd.required
+        def test(PARAM1,PARAM2,PARAM3,PARAM4,PARAM5,PARAM6, *args, **kwargs):
+            if request.method == 'POST':
+                #
+                return jsonify("method POST",PARAM1,PARAM2,PARAM3,PARAM4,PARAM5,PARAM6)
+            else:
+                return jsonify(PARAM1,PARAM2,PARAM3,PARAM4,PARAM5,PARAM6)
 
     app.add_url_rule("/", "index_action", index_action, methods=["GET"])
     app.add_url_rule("/login", "login_action", login_action, methods=["GET"])

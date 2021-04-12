@@ -11,3 +11,7 @@ class Duty(Form):
     project = StringField('Project')
     phone = StringField('Phone')
     email = StringField('Email')
+
+class ApiForm(Form):
+    project = StringField('project')
+    api = StringField('api')

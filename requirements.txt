@@ -4,3 +4,5 @@ python-ldap
 asyncio
 telebot
 telethon
+slackclient
+requests

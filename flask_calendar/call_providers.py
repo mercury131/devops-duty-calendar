@@ -9,6 +9,8 @@ from slack.errors import SlackApiError
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+import requests
   
 def send_to_telegram(phone,message,api_id,api_hash,token):
     # get your api_id, api_hash, token
@@ -122,3 +124,26 @@ def send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_addres
     text = message.as_string()
     session.sendmail(sender_address, receiver_address, text)
     session.quit()
+
+def send_rest1(duty1,duty2,project,email1,email2,url,method,auth,user,password,arg1,arg2,arg3,arg4):
+
+    url=url.replace('<DUTY1>',duty1).replace('<DUTY2>',duty2).replace('<PROJECT>',project).replace('<EMAIL1>',email1).replace('<EMAIL2>',email2).replace('<ARG1>',arg1).replace('<ARG2>',arg2).replace('<ARG3>',arg3).replace('<ARG4>',arg4)
+    
+    if auth == 'yes':
+        if method == 'POST':
+            resp = requests.post(url, data={}, auth=(user, password))
+        else:
+            resp = requests.get(url, data={}, auth=(user, password))
+    else:
+        if method == 'POST':
+            resp = requests.post(url, data={})
+        else:
+            resp = requests.get(url, data={})
+    
+    if resp.ok:
+        return resp
+    else:
+        raise MyError('REST Request is not 200!')
+        
+
+
