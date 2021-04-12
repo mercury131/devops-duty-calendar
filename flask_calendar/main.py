@@ -715,7 +715,51 @@ def auth_api(username,token):
 @app.route('/reports/check/')
 def checkrep():
     
-    return jsonify("test!")
+    current_day, current_month, current_year = GregorianCalendar.current_date()
+    year = int(request.args.get("y", current_year))
+    year = max(min(year, current_app.config["MAX_YEAR"]), current_app.config["MIN_YEAR"])
+    month = int(request.args.get("m", current_month))
+    month = max(min(month, 12), 1)
+    calendar_id = current_app.config["DEFAULT_CALENDAR"]
+    calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
+    data = calendar_data.load_calendar(calendar_id)
+    tasks = calendar_data.tasks_from_calendar(year, month, data)
+    rtasks = calendar_data._repetitive_tasks_from_calendar(year, month, data)
+    jsondata=json.loads(json.dumps(tasks))
+    jsondata2=json.loads(json.dumps(rtasks))
+    report=[]
+    
+
+    try:
+        for key in jsondata:
+            filterlist=key
+        found=jsondata[filterlist]
+        for d in found:
+            report.append(found[str(d)][0]['duty1'])
+            print(found[str(d)][0]['duty1'])
+    except Exception:
+        return False
+
+    try:
+        for key in jsondata2:
+            filterlist2=key
+        found2=jsondata2[filterlist2]
+        
+        for d in found2:
+            report.append(found2[str(d)][0]['duty1'])
+            print(found2[str(d)][0]['duty1'])
+    except Exception as e:
+        print(e)
+    #print(report.count('AN'))
+    print("start")
+    alldutys=set(report)
+    dutycount=len(alldutys)
+    final_report={}
+    for dt in alldutys:
+        #print(dt, report.count(str(dt)))
+        final_report[str(dt)]=report.count(str(dt))
+    print(final_report)
+    return jsonify(final_report)
 
 
 if __name__ == "__main__":
