@@ -27,31 +27,31 @@
 
         {% if editing %}
         <label for="text">Project</label>
-        <select class="form-control duty" id="projects" name="project" onclick="prj(); this.onclick=null;">
+        <select class="select-css" id="projects" name="project" onclick="prj(); this.onclick=null;">
         <option selected="selected">{{ task.get("project", "") }}</option>
         </select>       
         {% else %}
         <label for="text">Project</label>
-        <select class="form-control duty" id="projects" name="project" onclick="prj(); this.onclick=null;">
+        <select class="select-css" id="projects" name="project" onclick="prj(); this.onclick=null;">
         <option selected="selected">Choose here</option>
         </select>
         {% endif %}
         
         {% if editing %}
         <br><label for="text">Duty 1</label>
-        <select class="form-control duty" id="duty1" name="duty1">
+        <select class="select-css" id="duty1" name="duty1">
         <option selected="selected">{{ task.get("duty1", "") }}</option>
         </select>
         <br><label for="text">Duty 2</label>
-        <select class="form-control duty2" id="duty2" name="duty2">
+        <select class="select-css" id="duty2" name="duty2">
         <option selected="selected">{{ task.get("duty2", "") }}</option>
         </select>
         <br/>        
         {% else %}
         <br><label for="text">Duty 1</label>
-        <select class="form-control duty" id="duty1" name="duty1"></select>
+        <select class="select-css" id="duty1" name="duty1"></select>
         <br><label for="text">Duty 2</label>
-        <select class="form-control duty2" id="duty2" name="duty2"></select>
+        <select class="select-css" id="duty2" name="duty2"></select>
         <br/>
         {% endif %}
 
@@ -131,7 +131,7 @@
             <br/>
 
             <label for="repetition_value_weekday">Week Day</label>
-            <select name="repetition_value_weekday" id="repetition_value_weekday"
+            <select class="select-css" name="repetition_value_weekday" id="repetition_value_weekday"
                 {% if task.get("repetition_subtype") == "m" %}
                     disabled="disabled"
                 {% endif %}
@@ -146,7 +146,7 @@
             </select>
 
             <label for="repetition_value_monthday">From Day</label>
-            <select name="repetition_value_monthday" id="repetition_value_monthday"
+            <select class="select-css" style="width: 3%;" name="repetition_value_monthday" id="repetition_value_monthday"
                 {% if task.get("repetition_subtype") == "w" %}
                     disabled="disabled"
                 {% endif %}
@@ -184,7 +184,7 @@
                 <option value="31">31</option>
             </select>
             <label for="repetition_value_monthday_end">To Day</label>
-            <select name="repetition_value_monthday_end" id="repetition_value_monthday_end"
+            <select class="select-css" style="width: 3%;" name="repetition_value_monthday_end" id="repetition_value_monthday_end"
                 {% if task.get("repetition_subtype") == "w" %}
                     disabled="disabled"
                 {% endif %}
@@ -233,10 +233,10 @@
 
         <div id="colors-and-emojis">
             <label for="color">Color</label><br/>
-            <input class="form-button color-picker" type="color"
+            <input class="custom-form-button color-picker" type="color"
                 value="{{ task.get("color", button_default_color_value) }}" id="color_custom" />
             {% for color, label in buttons_colors %}
-                <input class="form-button color" style="color:{{ color }}" data-color="{{ color }}" type="button"
+                <input class="custom-form-button color" style="color:{{ color }}" data-color="{{ color }}" type="button"
                     value="{{ label }}" />
             {% endfor %}
             <input type="hidden" value="{{ task.get("color", button_default_color_value) }}" id="color" name="color" />
@@ -244,17 +244,17 @@
 
             {% if emojis_enabled %}
                 {% for emoji in buttons_emojis %}
-                    <input class="form-button emoji" type="button" value="{{ emoji }}" />
+                    <input class="custom-form-button emoji" type="button" value="{{ emoji }}" />
                 {% endfor %}
                 <br/>
             {% endif %}
         </div>
 
-        <input class="form-button" type="submit" value="Save" />
+        <input class="custom-form-button" type="submit" value="Save" />
 
-        <input class="form-button" id="delete-task" type="button" value="Delete" />
+        <input class="custom-form-button" id="delete-task" type="button" value="Delete" />
 
-        <input class="form-button" type="button" value="Cancel" onclick="window.history.go(-1); return false;" />
+        <input class="custom-form-button" type="button" value="Cancel" onclick="window.history.go(-1); return false;" />
     </div>
     </form>
 
@@ -477,12 +477,12 @@ function prj(){
         document.getElementById("colors-and-emojis").onclick = function(eventData) {
             if (eventData.target.nodeName === "INPUT") {
                 switch (eventData.target.className) {
-                    case "form-button color":
+                    case "custom-form-button color":
                         document.getElementById("color").value = eventData.target.getAttribute("data-color");
                         document.getElementById("color_custom").value = eventData.target.getAttribute("data-color");
                         return false;
                         break;
-                    case "form-button emoji":
+                    case "custom-form-button emoji":
                         let titleTextbox = document.getElementById("title");
                         titleTextbox.value = eventData.target.value + " " + titleTextbox.value;
                         break;
