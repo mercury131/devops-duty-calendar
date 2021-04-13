@@ -1,5 +1,6 @@
 from flask_table import Table, Col, LinkCol
 class Results(Table):
+    classes = ['customTable']
     id = Col('Id', show=False)
     name = Col('name')
     project = Col('project')
@@ -9,6 +10,7 @@ class Results(Table):
     delete = LinkCol('Delete', 'delete', url_kwargs=dict(id='id'))
 
 class Apitable(Table):
+    classes = ['customTable']
     id = Col('Id', show=False)
     project = Col('project')
     api = Col('api')

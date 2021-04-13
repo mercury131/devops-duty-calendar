@@ -14,7 +14,7 @@ from datetime import datetime
 import json
 import hashlib
 from uuid import uuid4
-
+import re
 
 from flask_calendar.app_utils import (
     add_session,
@@ -39,6 +39,14 @@ def getemail(duty):
     emails = [item[0] for item in emails]
     email=emails[0]
     return email
+
+
+def get_duty_project(duty):
+    prj = db_session.query(Project.project).filter(Project.name==duty).all()
+    prj = [item[0] for item in prj]
+    prj=prj[0]
+    return prj
+
 
 def get_project_api(prj):
     apis = db_session.query(Api.api).filter(Api.project==prj).all()
@@ -710,6 +718,92 @@ def auth_api(username,token):
         return True
     else:
         return False   
+
+
+@app.route('/reports/', defaults={'m': None, 'y': None}, methods=['GET', 'POST'])
+@app.route('/reports/<m>&<y>', methods=['GET', 'POST'])
+@authenticated
+def getreports(m,y):
+    
+    current_day, current_month, current_year = GregorianCalendar.current_date()
+    year = int(request.args.get("y", current_year))
+    year = max(min(year, current_app.config["MAX_YEAR"]), current_app.config["MIN_YEAR"])
+    month = int(request.args.get("m", current_month))
+    month = max(min(month, 12), 1)
+    month_name = GregorianCalendar.MONTH_NAMES[month - 1]
+    if m:
+        month = int(m)
+        month = max(min(month, 12), 1)
+        month_name = GregorianCalendar.MONTH_NAMES[month - 1]
+    if y:
+        year = int(y)
+
+    if request.method == 'POST':
+        date = request.form.get("date", "")
+        fragments = re.split("-", date)
+        try:
+            month = int(fragments[1])
+            month = max(min(month, 12), 1)
+            month_name = GregorianCalendar.MONTH_NAMES[month - 1]
+            year = int(fragments[0])
+        except Exception:
+            return jsonify("No reports found")
+
+    calendar_id = current_app.config["DEFAULT_CALENDAR"]
+    calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
+    data = calendar_data.load_calendar(calendar_id)
+    tasks = calendar_data.tasks_from_calendar(year, month, data)
+    rtasks = calendar_data._repetitive_tasks_from_calendar(year, month, data)
+    jsondata=json.loads(json.dumps(tasks))
+    jsondata2=json.loads(json.dumps(rtasks))
+    report=[]
+    
+    try:
+        for key in jsondata:
+            filterlist=key
+        
+        if m:
+            filterlist=m
+        if request.method == 'POST':
+            filterlist=str(month)
+        found=jsondata[filterlist]
+        for d in found:
+            report.append(found[str(d)][0]['duty1'])
+    except Exception:
+        False
+
+    try:
+        for key in jsondata2:
+            filterlist2=key
+        if m:
+            filterlist2=m
+        if request.method == 'POST':
+            filterlist2=str(month)
+        found2=jsondata2[filterlist2]
+        
+        for d in found2:
+            report.append(found2[str(d)][0]['duty1'])
+    except Exception as e:
+        False
+
+
+    if not report:
+        return jsonify("No reports found")
+    alldutys=set(report)
+    dutycount=len(alldutys)
+    final_report={}
+    for dt in alldutys:
+
+        final_report[str(dt)]=report.count(str(dt))
+
+    if m:
+        return jsonify(final_report)
+
+    return render_template('reports.html', report=final_report, month_name=month_name , year=year, get_duty_project=get_duty_project)
+
+
+
+
 
 if __name__ == "__main__":
 

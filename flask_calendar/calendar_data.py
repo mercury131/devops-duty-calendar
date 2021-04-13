@@ -89,6 +89,7 @@ class CalendarData:
         for day in self.gregorian_calendar.month_days(year, month):
             month_str = str(day.month)
             year_str = str(day.year)
+
             if (
                 year_str in data[KEY_TASKS][KEY_NORMAL_TASK]
                 and month_str in data[KEY_TASKS][KEY_NORMAL_TASK][year_str]

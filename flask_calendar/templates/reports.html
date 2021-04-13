@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Calendar</title>
+    <link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for("static", filename="") }}favicon_{{ current_day }}.png" id="favicon">
+    <meta name="viewport" content="width=400" />
+
+    <style>
+        #dutys {
+          font-family: Arial, Helvetica, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        #dutys td, #dutys th {
+          border: 1px solid #ddd;
+          padding: 8px;
+        }
+        
+        #dutys tr:nth-child(even){background-color: #f2f2f2;}
+        
+        #dutys tr:hover {background-color: #ddd;}
+        
+        #dutys th {
+          padding-top: 12px;
+          padding-bottom: 12px;
+          text-align: left;
+          background-color: #BABFBA;
+          color: white;
+        }
+        </style>
+
+</head>
+<body>
+    <div class="header">
+        <a href="javascript:history.back()"><button id="toggle-past-events" class="custom-toggle-past-events" style="margin-right: 5px;">Back to calendar</button></a>
+         
+        
+    </div>
+    <br>
+    <br>
+<div class="header">
+  <div class="current-date">
+    {{ month_name }} {{ year }}
+</div><br><br>
+  <table border="1" class="customTable">
+    <thead><tr><th>name</th><th>days</th><th>project</th></tr></thead>
+    <tbody>
+
+   {% for key, value in report.items() %}
+      <tr><td>{{key}} </td><td>{{value}}</td><td>{{ get_duty_project(key) }}</td></tr>
+   {% endfor %}
+
+    </tbody>
+    </table>
+</div>
+<br>
+<form autocomplete="off" method="POST" action="{{ base_url }}/reports/">
+<label for="date_picker">Select date</label>
+<input id="date_picker" type="date" value="">     
+<input type="hidden" id="date" name="date" value="" />     
+<input class="custom-form-button" type="submit" value="Search" />
+</form>
+
+
+ </body>
+</html>
+
+<script type="text/javascript">
+
+document.getElementById("date_picker").onchange = function(eventData) {
+            document.getElementById("date").value = eventData.target.value;
+        };
+
+  
+        $(function() {
+            $('.date_picker').datepicker( {
+            changeMonth: true,
+            changeYear: true,
+            showButtonPanel: true,
+            dateFormat: 'MM yy',
+            onClose: function(dateText, inst) { 
+                $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+            }
+            });
+        });
+</script>
+<style>
+  .ui-datepicker-calendar {
+      display: none;
+  }
+  </style>
