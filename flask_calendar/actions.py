@@ -269,7 +269,10 @@ def update_task_action(calendar_id: str, year: str, month: str, day: str, task_i
         start_time = request.form["start_time"]
         end_time = request.form.get("end_time", None)
         details1 = request.form["details"].replace("\r", "").replace("\n", "<br>")
-        details=(Duty2 + ' ' + phone2 + ' ' + details1)
+        if current_app.config["OWERWRITE_DETAILS"] == 'yes':
+            details=(Duty2 + ' ' + phone2)
+        else:
+            details=(Duty2 + ' ' + phone2 + ' ' + details1)
         color = request.form["color"]
         has_repetition = request.form.get("repeats", "0") == "1"
         repetition_type = request.form.get("repetition_type", "")
