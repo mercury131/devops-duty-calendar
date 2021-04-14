@@ -15,6 +15,7 @@ import json
 import hashlib
 from uuid import uuid4
 import re
+import os
 
 from flask_calendar.app_utils import (
     add_session,
@@ -205,10 +206,29 @@ def save_changes(duty, form, new=False):
         db_session.add(duty)
     else:
         #duty = Project()
+        oldname = duty.name
+        oldphone = duty.phone
+        oldemail = duty.email
+
         duty.name = form.name.data
         duty.project = form.project.data
         duty.phone = form.phone.data
         duty.email = form.email.data
+        
+        if oldname != duty.name or oldphone != duty.phone or oldemail != duty.email:
+            data_folder = app.config["DATA_FOLDER"]
+            filename = app.config["DEFAULT_CALENDAR"]
+            calendar_file=open(os.path.join(".", data_folder, "{}.json".format(filename)), "rt")
+            data = calendar_file.read()
+            if oldname != duty.name:
+                data = data.replace(oldname, form.name.data)
+            if oldphone != duty.phone:
+                data = data.replace(oldphone, form.phone.data)
+            calendar_file.close()
+            calendar_file=open(os.path.join(".", data_folder, "{}.json".format(filename)), "wt")
+            calendar_file.write(data)
+            calendar_file.close()
+
     # commit the data to the database
     db_session.commit()
 

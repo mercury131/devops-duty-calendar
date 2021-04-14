@@ -27,6 +27,8 @@ ALLOWGROUP_RW = "CN=duty-access,CN=Users,DC=test,DC=com"
 
 DEFAULT_CALENDAR = "sample"
 
+OWERWRITE_DETAILS = "yes"
+
 # Callback API Settings
 
 USE_TEST_ROUTE = 'yes'
