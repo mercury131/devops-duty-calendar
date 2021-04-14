@@ -449,6 +449,7 @@ def delete_task_action(calendar_id: str, year: str, month: str, day: str, task_i
         return redirect("/", code=302)
 
 
+
 @authenticated
 @authorized
 def update_task_day_action(calendar_id: str, year: str, month: str, day: str, task_id: str) -> Response:

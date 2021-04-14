@@ -158,13 +158,14 @@ class CalendarData:
 
     def delete_task(self, calendar_id: str, year_str: str, month_str: str, day_str: str, task_id: int,) -> None:
         deleted = False
-        data = self.load_calendar(calendar_id)
+        data = self.load_calendar(calendar_id)                       
 
         if (
             year_str in data[KEY_TASKS][KEY_NORMAL_TASK]
             and month_str in data[KEY_TASKS][KEY_NORMAL_TASK][year_str]
             and day_str in data[KEY_TASKS][KEY_NORMAL_TASK][year_str][month_str]
         ):
+
             for index, task in enumerate(data[KEY_TASKS][KEY_NORMAL_TASK][year_str][month_str][day_str]):
                 if task["id"] == task_id:
                     data[KEY_TASKS][KEY_NORMAL_TASK][year_str][month_str][day_str].pop(index)

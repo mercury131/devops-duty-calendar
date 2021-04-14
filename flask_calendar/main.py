@@ -801,9 +801,53 @@ def getreports(m,y):
 
     return render_template('reports.html', report=final_report, month_name=month_name , year=year, get_duty_project=get_duty_project)
 
+@app.route('/remove_tasks/', defaults={'tasks': None}, methods=['GET', 'POST'])
+@app.route('/remove_tasks/<tasks>', methods=['GET', 'POST'])
+@authenticated
+def remove_tasks(tasks):
+    if request.method == 'POST':
+        current_day, current_month, current_year = GregorianCalendar.current_date()
+        year = int(request.args.get("y", current_year))
+        year = max(min(year, current_app.config["MAX_YEAR"]), current_app.config["MIN_YEAR"])
+        month = int(request.args.get("m", current_month))
+        month = max(min(month, 12), 1)
+        month_name = GregorianCalendar.MONTH_NAMES[month - 1]
+        calendar_id = current_app.config["DEFAULT_CALENDAR"]
+        calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
+        data = calendar_data.load_calendar(calendar_id)
+        tasks = calendar_data.tasks_from_calendar(year, month, data)
+
+        project = request.form.get("project", "")
+        startdate = request.form.get("date", "")
+        enddate = request.form.get("enddate", "")
+        if startdate != enddate:
+            from datetime import date, timedelta
+            startdate_fragments = re.split("-", startdate)
+            enddate_fragments = re.split("-", enddate)
+            sdate = date(int(startdate_fragments[0]), int(startdate_fragments[1]), int(startdate_fragments[2]))   # start date
+            edate = date(int(enddate_fragments[0]), int(enddate_fragments[1]), int(enddate_fragments[2]))   # end date
+            delta = edate - sdate       # as timedelta
+            for i in range(delta.days + 1):
+                currentdate = re.split("-", str(sdate + timedelta(days=i)))
+                day = int(currentdate[2])
+                year = int(currentdate[0])  # type: Optional[int]
+                month = int(currentdate[1])  # type: Optional[int]
+                tsks=tasks[str(month)]
+                for ts in tsks:
+                    if day == int(ts):
+                        for t in tsks[ts]:
+                            jsondata=json.loads(json.dumps(t))
+                            tskid=jsondata['id']
+                            tskprj=jsondata['project']
+                            if tskprj == project:
+                                calendar_data.delete_task(calendar_id=calendar_id, year_str=str(year), month_str=str(month), day_str=str(day), task_id=int(tskid),)
+           
+        return render_template('remove.html')
+    else:
+        return render_template('remove.html')
 
 
-
+        
 
 if __name__ == "__main__":
 
