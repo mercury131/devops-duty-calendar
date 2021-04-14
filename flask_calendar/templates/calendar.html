@@ -17,7 +17,7 @@
         <input type="button" class="custom-header-button" value="+"
             onclick="window.location='/{{ calendar_id }}/{{ year }}/{{ month}}/new_task'" title="New task" />
             <input type="button" class="custom-header-button" value="-"
-            onclick="window.location='/{{ calendar_id }}/{{ year }}/{{ month}}/new_task'" title="Delete task" />  
+            onclick="window.location='{{ base_url }}/remove_tasks/'" title="Delete task" />  
             {% endif %}          
         <input type="button" class="custom-header-button" value="&lt;" onclick="window.location='{{ previous_month_link }}'"
             title="Previous month" />

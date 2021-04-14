@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>
+            Remove Tasks
+
+    </title>
+    <link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for("static", filename="favicon.ico") }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body >
+    <div class="header">
+        <a href="{{ base_url }}/"><button id="toggle-past-events" class="custom-toggle-past-events" style="margin-right: 5px;">Back to calendar</button></a>
+         
+        
+    </div>
+
+        <form autocomplete="off" method="POST"
+            action="{{ base_url }}/remove_tasks/">
+
+    <div id="task-details-form" class="task-details-form">
+
+
+
+
+        <label for="text">Project</label>
+        <select class="select-css" id="projects" name="project" onclick="prj(); this.onclick=null;">
+        <option selected="selected">Choose here</option>
+        </select>       
+        <br>
+        <label for="date_picker">Start date</label>
+        <input id="date_picker" type="date" value="">
+        <input type="hidden" id="date" name="date" value="" />
+        <br/>
+
+        <label for="date_picker2">End date</label>
+        <input id="date_picker2" type="date" value="">
+        <input type="hidden" id="enddate" name="enddate" value="" />
+        <br/>
+
+
+        <br/>
+
+    </div>
+
+        <input class="custom-form-button" type="submit" value="Delete" />
+
+        <input class="custom-form-button" type="button" value="Cancel" onclick="window.history.go(-1); return false;" />
+    </div>
+    </form>
+
+    <script>
+
+let projects = document.getElementById('projects');
+
+function prj(){
+
+      
+            fetch('/duty_projects/').then(function(response){
+      
+                response.json().then(function(data){
+                    let optionHTML1 = '';
+      
+                    for(let opt of data.PROJECTS){
+                        optionHTML1 += '<option value ="'  + opt + '">' + opt + '</option>';
+                    }
+      
+                    projects.innerHTML = optionHTML1;
+        
+      
+      
+        
+      
+                });
+            });
+        }
+
+        document.getElementById("date_picker").onchange = function(eventData) {
+            document.getElementById("date").value = eventData.target.value;
+        };
+
+        document.getElementById("date_picker2").onchange = function(eventData) {
+            document.getElementById("enddate").value = eventData.target.value;
+        };
+
+</script>
+
+</body>
+</html>
