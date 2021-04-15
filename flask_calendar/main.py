@@ -788,7 +788,11 @@ def getreports(m,y):
             filterlist=str(month)
         found=jsondata[filterlist]
         for d in found:
-            report.append(found[str(d)][0]['duty1'])
+            for k in found[str(d)]:
+                report.append(k['duty1'])
+                
+
+        
     except Exception:
         False
 
@@ -802,18 +806,25 @@ def getreports(m,y):
         found2=jsondata2[filterlist2]
         
         for d in found2:
-            report.append(found2[str(d)][0]['duty1'])
+
+            for k in found2[str(d)]:
+
+                if (calendar_data._is_repetition_hidden(data, str(k['id']), str(year), str(month)) ) is True:
+                    False
+                else:
+                    report.append(k['duty1'])
+
     except Exception as e:
         False
 
 
     if not report:
         return jsonify("No reports found")
+    
     alldutys=set(report)
     dutycount=len(alldutys)
     final_report={}
     for dt in alldutys:
-
         final_report[str(dt)]=report.count(str(dt))
 
     if m:
