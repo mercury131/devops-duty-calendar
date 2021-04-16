@@ -9,9 +9,13 @@ from flask_calendar.authorization import Authorization
 from flask_calendar.calendar_data import CalendarData
 from flask_calendar.constants import SESSION_ID
 from flask_calendar.gregorian_calendar import GregorianCalendar
+from flask_calendar.cache import cache
+
+#cache=SimpleCache()
 
 
-cache = SimpleCache()
+
+
 
 # see `app_utils` tests for details, but TL;DR is that urls must start with `http://` or `https://` to match
 URLS_REGEX_PATTERN = r"(https?\:\/\/[\w/\-?=%.]+\.[\w/\+\-?=%.~&\[\]\#]+)"
@@ -77,19 +81,23 @@ def new_session_id() -> str:
 
 
 def is_session_valid(session_id: str) -> bool:
-    return cache.get(session_id) is not None
+    with current_app.app_context():
+        return cache.get(session_id) is not None
 
 
 def add_session(session_id: str, username: str) -> None:
-    #cache.set(session_id, username, timeout=2678400)  # 1 month
-    cache.set(session_id, username, timeout=2678400)  # 1 month
+    with current_app.app_context():
+        #cache.set(session_id, username, timeout=2678400)  # 1 month
+        cache.set(session_id, username, timeout=2678400)  # 1 month
     
 def remove_session(session_id: str, username: str) -> None:
-    #cache.set(session_id, username, timeout=2678400)  # 1 month
-    cache.set(session_id, username, timeout=1)  # 1 month
+    with current_app.app_context():
+        #cache.set(session_id, username, timeout=2678400)  # 1 month
+        cache.set(session_id, username, timeout=1)  # 1 month
 
 def get_session_username(session_id: str) -> str:
-    return str(cache.get(session_id))
+    with current_app.app_context():
+        return str(cache.get(session_id))
 
 
 def task_details_for_markup(details: str) -> str:

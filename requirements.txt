@@ -6,3 +6,4 @@ telebot
 telethon
 slackclient
 requests
+flask-caching
