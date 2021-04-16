@@ -11,6 +11,7 @@ import config  # noqa: F401
 from flask import Flask, session, Response, send_from_directory, flash, render_template, request, redirect, jsonify
 from flask_calendar.db_setup import init_db, db_session
 from flask_sqlalchemy import SQLAlchemy
+from flask_calendar.cache import cache
 from flask_calendar.actions import (
     delete_task_action,
     do_login_action,
@@ -39,6 +40,8 @@ def create_app(config_overrides: Dict = None) -> Flask:
     app.config.from_object("config")
     app.secret_key = app.config["SECRET_KEY"]
     
+    
+    cache.init_app(app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': app.config["CACHE_DIR"],'CACHE_DEFAULT_TIMEOUT': 15})
 
 
     if app.config["USE_TEST_ROUTE"] == 'yes':

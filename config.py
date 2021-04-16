@@ -17,6 +17,8 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///duty.db'
 
 SECRET_KEY = "justkey"
 
+CACHE_DIR="/home/darkwind/flask-calendar/cache"
+
 USE_LDAP = "true"
 CACERT = '/home/darkwind/flask-ldap/ca_name.pem'
 LDAPSERVER = "srv1.test.com"
