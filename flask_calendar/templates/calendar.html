@@ -44,6 +44,10 @@
         <a href="{{ url_for('.getreports') }}"><button id="toggle-past-events" class="custom-toggle-past-events" style="margin-right: 5px;">📝</button></a>
 
         {% if session['admin'] == 'true' %}
+        <a href="{{ url_for('.show_pms') }}"><button id="toggle-past-events" class="custom-toggle-past-events" style="margin-right: 5px;">PM</button></a>
+        {% endif %}
+
+        {% if session['admin'] == 'true' %}
         <a href="{{ url_for('.show_dutys') }}"><button id="toggle-past-events" class="custom-toggle-past-events" style="margin-right: 5px;">Manage Duty</button></a>
         {% endif %}
         

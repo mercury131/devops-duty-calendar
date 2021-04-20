@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Calendar</title>
+    <link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for("static", filename="") }}favicon_{{ current_day }}.png" id="favicon">
+    <meta name="viewport" content="width=400" />
+
+    <style>
+      @import url('https://fonts.googleapis.com/css?family=Raleway:400,700');
+      
+      *,*:before,*:after{
+          box-sizing:border-box;
+
+      }
+      
+      body{
+        min-height:100vh;
+        font-family: 'Raleway', sans-serif;
+      }
+      
+      .container{
+        position:absolute;
+        width:100%;
+        height:100%;
+        overflow:hidden;
+        
+        &:hover,&:active{
+          .top, .bottom{
+            &:before, &:after{
+              margin-left: 200px;
+              transform-origin: -200px 50%;
+              transition-delay:0s;
+            }
+          }
+          
+          .center{
+            opacity:1;
+            transition-delay:0.2s;
+          }
+        }
+      }
+      
+      .top, .bottom{
+        &:before, &:after{
+          content:'';
+          display:block;
+          position:absolute;
+          width:200vmax;
+          height:200vmax;
+          top:50%;left:50%;
+          margin-top:-100vmax;
+          transform-origin: 0 50%;
+          transition:all 0.5s cubic-bezier(0.445, 0.05, 0, 1);
+          z-index:10;
+          opacity:0.65;
+          transition-delay:0.2s;
+          
+        }
+      }
+      
+      .top{
+        &:before{transform:rotate(45deg);background:#e46569;}
+        &:after{transform:rotate(135deg);background:#ecaf81;}
+      }
+      
+      .bottom{
+        &:before{transform:rotate(-45deg);background:#60b8d4;}
+        &:after{transform:rotate(-135deg);background:#3745b5;}
+      }
+      
+      .center{
+        position:absolute;
+        width:400px;
+        height:400px;
+        top:50%;left:50%;
+        margin-left:-200px;
+        margin-top:-200px;
+        display:flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding:30px;
+        opacity:0;
+        transition:all 0.5s cubic-bezier(0.445, 0.05, 0, 1);
+        transition-delay:0s;
+        color:#333;
+        
+        input{
+          width:100%;
+          padding:15px;
+          margin:5px;
+          border-radius:1px;
+          border:1px solid #ccc;
+          font-family:inherit;
+        }
+      }    
+          </style>
+
+</head>
+<body>
+    <div class="header">
+        <a href="javascript:history.back()"><button id="toggle-past-events" class="custom-toggle-past-events" style="margin-right: 5px;">Back</button></a>
+         
+        
+    </div>
+    <br>
+    <br>
+<div id="dutys">
+    <h2>Add Project Manager</h2>
+    {% from "_formhelpers.html" import render_field %}
+    <form method="post">
+      <label for="text">Project</label>
+      <select class="select-css duty" id="projects" name="project" onclick="prj(); this.onclick=null;">
+        <option selected="selected">Choose here</option>
+      </select> 
+        <dl>
+            {{ render_field(form.pm) }}
+        </dl>
+        <p><input class="custom-form-button" type="submit" value="Create">
+    </p></form>
+</div>
+ </body>
+ <script>
+
+  let projects = document.getElementById('projects');
+  
+  function prj(){
+  
+        
+              fetch('/duty_projects/').then(function(response){
+        
+                  response.json().then(function(data){
+                      let optionHTML1 = '';
+        
+                      for(let opt of data.PROJECTS){
+                          optionHTML1 += '<option value ="'  + opt + '">' + opt + '</option>';
+                      }
+        
+                      projects.innerHTML = optionHTML1;
+          
+        
+        
+          
+        
+                  });
+              });
+          }
+                  
+  </script>
+
+</html>
