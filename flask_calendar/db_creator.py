@@ -36,8 +36,9 @@ class PMs(Base):
     """"""
     __tablename__ = "pms"
     id = Column(Integer, primary_key=True)
-    pm = Column(String)
+    manager = Column(String)
     project = Column(String)
+    email = Column(String)
 
 # create tables
 Base.metadata.create_all(engine)

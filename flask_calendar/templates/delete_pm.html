@@ -112,8 +112,9 @@
     {% from "_formhelpers.html" import render_field %}
     <form method="post">
         <dl>
-            {{ render_field(form.pm) }}
-            {{ render_field(form.project) }}
+          {{ render_field(form.manager) }}
+          {{ render_field(form.project) }}
+          {{ render_field(form.email) }}
         </dl>
         <p><input class="custom-form-button" type="submit" value="Remove">
     </p></form>

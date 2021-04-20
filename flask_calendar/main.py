@@ -137,12 +137,14 @@ def save_pm(pm, form, new=False):
 
     if new:
         pm = Pms()
-        pm.pm = form.pm.data
+        pm.manager = form.manager.data
         pm.project = form.project.data
+        pm.email = form.email.data
         db_session.add(pm)
     else:
-        pm.pm = form.pm.data
+        pm.manager = form.manager.data
         pm.project = form.project.data
+        pm.email = form.email.data
     # commit the data to the database
     db_session.commit()
 

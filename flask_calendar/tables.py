@@ -20,7 +20,8 @@ class Apitable(Table):
 class PMtable(Table):
     classes = ['customTable']
     id = Col('Id', show=False)
-    pm = Col('pm')
+    manager = Col('manager')
     project = Col('project')
+    email = Col('email')
     edit = LinkCol('Edit', 'edit_pm', url_kwargs=dict(id='id'))
     delete = LinkCol('Delete', 'delete_pm', url_kwargs=dict(id='id'))

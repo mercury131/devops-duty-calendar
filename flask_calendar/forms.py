@@ -17,5 +17,6 @@ class ApiForm(Form):
     api = StringField('api')
 
 class PMForm(Form):
-    pm = StringField('pm')
+    manager = StringField('manager')
     project = StringField('project')
+    email = StringField('email')

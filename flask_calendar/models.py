@@ -30,5 +30,6 @@ class Pms(db.Model):
     """"""
     __tablename__ = "pms"
     id = db.Column(db.Integer, primary_key=True)
-    pm = db.Column(db.String)
+    manager = db.Column(db.String)
     project = db.Column(db.String)
+    email = db.Column(db.String)
