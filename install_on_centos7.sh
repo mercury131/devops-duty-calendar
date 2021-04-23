@@ -1,3 +1,5 @@
+setenforce 0
+
 yum install git nginx python3 -y
 
 sed -i 's/enforcing/disabled/g' /etc/selinux/config
