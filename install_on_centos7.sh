@@ -18,7 +18,7 @@ systemctl enable nginx && systemctl start nginx
 
 mkdir /var/www && chown nginx /var/www && cd /var/www
 
-yum install gcc python3-devel openldap-devel
+yum install gcc python3-devel openldap-devel -y
 
 pip3.6 install uwsgi
 
