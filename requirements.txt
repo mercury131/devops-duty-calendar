@@ -8,3 +8,4 @@ slackclient
 requests
 flask-caching
 APScheduler
+sqlalchemy
