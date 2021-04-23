@@ -25,3 +25,11 @@ class Apikeys(db.Model):
     user = db.Column(db.String)
     key = db.Column(db.String)
     date = db.Column(db.DateTime(timezone=True), default=db.func.now())
+
+class Pms(db.Model):
+    """"""
+    __tablename__ = "pms"
+    id = db.Column(db.Integer, primary_key=True)
+    manager = db.Column(db.String)
+    project = db.Column(db.String)
+    email = db.Column(db.String)

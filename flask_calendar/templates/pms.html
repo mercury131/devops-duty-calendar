@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Calendar</title>
+    <link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for("static", filename="") }}favicon_{{ current_day }}.png" id="favicon">
+    <meta name="viewport" content="width=400" />
+
+
+
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('.add_pm') }}"><button id="toggle-past-events" class="custom-form-button" style="margin-right: 5px;">+</button></a>
+        <a href="javascript:history.back()"><button id="toggle-past-events" class="custom-toggle-past-events" style="margin-right: 5px;">Back to calendar</button></a>
+         
+        
+    </div>
+    <br>
+    <h2>Manage Project Managers</h2>
+    <br>
+<div >
+    {{ table }}
+</div>
+ </body>
+</html>

@@ -1,9 +1,9 @@
 from flask_calendar.app import app, db
 from flask_calendar.db_setup import init_db, db_session
-from flask_calendar.forms import SearchForm, Duty, ApiForm
+from flask_calendar.forms import SearchForm, Duty, ApiForm, PMForm
 from flask import flash, current_app, session, render_template, request, redirect, jsonify, abort
-from flask_calendar.models import Project, Api, Apikeys
-from flask_calendar.tables import Results, Apitable
+from flask_calendar.models import Project, Api, Apikeys, Pms
+from flask_calendar.tables import Results, Apitable, PMtable
 from flask_calendar.app_utils import remove_session , get_session_username
 from flask_calendar.constants import SESSION_ID
 from flask_calendar.authentication import Authentication
@@ -16,6 +16,7 @@ import hashlib
 from uuid import uuid4
 import re
 import os
+from flask_calendar.scheduler import start_scheduler
 
 from flask_calendar.app_utils import (
     add_session,
@@ -70,6 +71,108 @@ def show_dutys():
     tableres.border = True
     if session['admin'] == 'true' :
         return render_template('duty.html', table=tableres)
+    else:
+        return redirect("/", code=302)
+
+@app.route('/pms')
+@authenticated
+def show_pms():
+    results = []
+    qry = db_session.query(Pms)
+    results = qry.all()
+    # display results
+    tableres = PMtable(results)
+    tableres.border = True
+    if session['admin'] == 'true' :
+        return render_template('pms.html', table=tableres)
+    else:
+        return redirect("/", code=302)
+
+@app.route('/add_pm', methods=['GET', 'POST'])
+@authenticated
+def add_pm():
+    """
+    Add a new pm
+    """
+    form = PMForm(request.form)
+    if session['admin'] == 'true' :
+        if request.method == 'POST' and form.validate():
+            # save the pm
+            pm = Pms()
+            save_pm(pm, form, new=True)
+            flash('pm add created successfully!')
+            return redirect('/')
+        return render_template('add_pm.html', form=form)
+    else:
+        return redirect("/", code=302)
+
+
+@app.route('/pmitem/<int:id>', methods=['GET', 'POST'])
+@authenticated
+def edit_pm(id):
+    if session['admin'] == 'true' :
+        qry = db_session.query(Pms).filter(
+                    Pms.id==id)
+        pm = qry.first()
+        if pm:
+            form = PMForm(formdata=request.form, obj=pm)
+            if request.method == 'POST' and form.validate():
+                # save edits
+                save_pm(pm, form)
+                flash('PM updated successfully!')
+                return redirect('/')
+            return render_template('edit_pm.html', form=form)
+        else:
+            return 'Error loading #{id}'.format(id=id)
+    else:
+        return redirect("/", code=302)
+
+
+@authenticated
+def save_pm(pm, form, new=False):
+    """
+    Save the changes to the database
+    """
+    # Get data from form and assign it to the correct attributes
+    # of the SQLAlchemy table object
+
+    if new:
+        pm = Pms()
+        pm.manager = form.manager.data
+        pm.project = form.project.data
+        pm.email = form.email.data
+        db_session.add(pm)
+    else:
+        pm.manager = form.manager.data
+        pm.project = form.project.data
+        pm.email = form.email.data
+    # commit the data to the database
+    db_session.commit()
+
+
+@app.route('/deletepm/<int:id>', methods=['GET', 'POST'])
+@authenticated
+def delete_pm(id):
+    if session['admin'] == 'true' :
+            
+        """
+        Delete the item in the database that matches the specified
+        id in the URL
+        """
+        qry = db_session.query(Pms).filter(
+            Pms.id==id)
+        pm = qry.first()
+        if pm:
+            form = PMForm(formdata=request.form, obj=pm)
+            if request.method == 'POST' and form.validate():
+                # delete the item from the database
+                db_session.delete(pm)
+                db_session.commit()
+                flash('PM deleted successfully!')
+                return redirect('/')
+            return render_template('delete_pm.html', form=form)
+        else:
+            return 'Error deleting #{id}'.format(id=id)
     else:
         return redirect("/", code=302)
 
@@ -878,7 +981,9 @@ def remove_tasks(tasks):
         return render_template('remove.html')
 
 
-        
+
+
+start_scheduler(app)
 
 if __name__ == "__main__":
 

@@ -15,3 +15,8 @@ class Duty(Form):
 class ApiForm(Form):
     project = StringField('project')
     api = StringField('api')
+
+class PMForm(Form):
+    manager = StringField('manager')
+    project = StringField('project')
+    email = StringField('email')

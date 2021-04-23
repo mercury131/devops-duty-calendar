@@ -16,3 +16,12 @@ class Apitable(Table):
     api = Col('api')
     edit = LinkCol('Edit', 'edit_api_mapping', url_kwargs=dict(id='id'))
     delete = LinkCol('Delete', 'delete_api_mapping', url_kwargs=dict(id='id'))
+
+class PMtable(Table):
+    classes = ['customTable']
+    id = Col('Id', show=False)
+    manager = Col('manager')
+    project = Col('project')
+    email = Col('email')
+    edit = LinkCol('Edit', 'edit_pm', url_kwargs=dict(id='id'))
+    delete = LinkCol('Delete', 'delete_pm', url_kwargs=dict(id='id'))
