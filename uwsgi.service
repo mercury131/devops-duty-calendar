@@ -1,0 +1,8 @@
+[Unit]
+    Description=uWSGI instance to serve flask-calendar
+
+[Service]
+    ExecStart=/usr/bin/bash -c 'cd /var/www/flask-calendar; uwsgi --ini uwsgi.ini --enable-threads'
+
+[Install]
+    WantedBy=multi-user.target
