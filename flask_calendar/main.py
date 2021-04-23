@@ -16,6 +16,7 @@ import hashlib
 from uuid import uuid4
 import re
 import os
+from flask_calendar.scheduler import start_scheduler
 
 from flask_calendar.app_utils import (
     add_session,
@@ -980,7 +981,9 @@ def remove_tasks(tasks):
         return render_template('remove.html')
 
 
-        
+
+
+start_scheduler(app)
 
 if __name__ == "__main__":
 

@@ -104,6 +104,71 @@ REST4_ARG2 = ''
 REST4_ARG3 = ''
 REST4_ARG4 = ''
 
+# Scheduler
+
+JOBS = [
+        {
+            'id': 'notify project manager',
+            'func': 'checkpm',
+            'trigger': 'cron',
+            'day': '*',
+            'hour': 10,
+            'minute': 10
+        },
+       {
+           'id': 'notify duty',
+           'func': 'check_duty_schedule',
+           'trigger': 'cron',
+           'day': '*',
+           'hour': 11,
+           'minute': 27
+       },    
+       {
+           'id': 'Expire tokens',
+           'func': 'check_token_ttl',
+            'trigger': 'interval',
+            'seconds': 86400
+       },    
+#   Example CRON usage
+#        {
+#            'id': 'notify pm',
+#            'func': 'checkpm',
+#            'trigger': 'cron',
+#            'day': '*',
+#            'hour': 11,
+#            'minute': 27
+#        },
+#        {
+#            'id': 'notify duty',
+#            'func': 'check_duty_schedule',
+#            'trigger': 'interval',
+#            'seconds': 5
+#        },    
+
+    ]
+
+# Scheduler SMTP Settings
+
+# <PROJECT> variable used for duty current project
+
+SH_SMTP_SERVER = ''
+SH_SMTP_PORT = '587'
+SH_SMTP_LOGIN = ''
+SH_SMTP_PASSWORD = ''
+SH_SENDER_ADDRESS = ''
+
+SH_PM_EMAIL_MESSAGE = 'No duty in schedule calendar today! Check your schedule!'
+SH_PM_EMAIL_SUBJECT = 'No duty in schedule calendar!'
+
+SH_DUTY_EMAIL_MESSAGE = 'Your duty on the project <PROJECT> started today!'
+SH_DUTY_EMAIL_SUBJECT = 'Your duty on the project <PROJECT> started today!'
+
+SH_LAST_DUTY_EMAIL_MESSAGE = 'Your duty on the project <PROJECT> ended today!'
+SH_LAST_DUTY_EMAIL_SUBJECT = 'Your duty on the project <PROJECT> ended today!'
+
+SH_ADMINISTRATOR_EMAIL = ''
+
+
 WEEK_STARTING_DAY = constants.WEEK_START_DAY_MONDAY
 
 MONTHS_TO_EXPORT = 6  # currently only used for ICS export

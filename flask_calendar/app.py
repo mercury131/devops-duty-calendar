@@ -5,7 +5,7 @@ import os
 from typing import Dict
 
 
-
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import config  # noqa: F401
 from flask import Flask, session, Response, send_from_directory, flash, render_template, request, redirect, jsonify
@@ -39,7 +39,9 @@ def create_app(config_overrides: Dict = None) -> Flask:
     app = Flask(__name__)
     app.config.from_object("config")
     app.secret_key = app.config["SECRET_KEY"]
-    
+
+    app.scheduler = BackgroundScheduler()
+    app.scheduler.start()
     
     cache.init_app(app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': app.config["CACHE_DIR"],'CACHE_DEFAULT_TIMEOUT': 15})
 
@@ -120,5 +122,4 @@ def create_app(config_overrides: Dict = None) -> Flask:
 
 app = create_app()
 db = SQLAlchemy(app)
-
 
