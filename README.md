@@ -123,6 +123,8 @@ Add your users to Active Directory groups and login in calendar after that
 ### Add Duty and Projects
 Enter manage duty button after login and press + button
 ![Main calendar view](doc/manage_duty.png)
+
+
 fill the form
 ![Main calendar view](doc/duty_form.png)
 
