@@ -29,9 +29,9 @@ pip3.6 install uwsgi
 
 git clone https://github.com/mercury131/flask-calendar
 
-sed -i "s|/home/darkwind/flask-calendar/cache|/var/www/flask-calendar/cache|g" /etc/nginx/conf.d/flask_nginx.conf
+sed -i "s|/home/darkwind/flask-calendar/cache|/var/www/flask-calendar/cache|g" /var/www/flask-calendar/config.py
 
-sed -i "s|/home/darkwind/flask-ldap/ca_name.pem|/var/www/flask-calendar/ca_name.pem|g" /etc/nginx/conf.d/flask_nginx.conf
+sed -i "s|/home/darkwind/flask-ldap/ca_name.pem|/var/www/flask-calendar/ca_name.pem|g" /var/www/flask-calendar/config.py
 
 pip3.6 install -r flask-calendar/requirements.txt
 
