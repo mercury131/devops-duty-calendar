@@ -76,7 +76,7 @@ PASSWORD_SALT = "AHKUFj4hiw538thv4t89wygyw85fm93p23y4x,rghe54iy6m2"
 ```
 
 ### Setup call back providers
-Setup call back provedirs, your duty can receive notifications from Telegram,Slack, Email. 
+Setup call back providers, your duty can receive notifications from Telegram,Slack, Email. 
 Also you can use custon external providers via REST API Constructor
 
 ```
