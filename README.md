@@ -122,10 +122,12 @@ Add your users to Active Directory groups and login in calendar after that
 
 ### Add Duty and Projects
 Enter manage duty button after login and press + button
+
 ![Main calendar view](doc/manage_duty.png)
 
 
 fill the form
+
 ![Main calendar view](doc/duty_form.png)
 
 ![Main calendar view](doc/dutys.png)
@@ -171,7 +173,7 @@ if you use a recurring schedule but want to change days this month, press the H 
 
 After that add regular task to day
 
-![Main calendar view](doc/add.png)
+![Main calendar view](doc/new_sh.png)
 
 ### How to use Calendar REST API?
 You can use Calendar REST API with your monitoring system.
