@@ -4,7 +4,7 @@
 
 ## Introduction
 
-In 2021, I started looking for a calendar for DevOps on duty. The main task was simple and convenient maintenance of the duty schedule and REST API for sending a message and making calls to the duty officers during an incident. Also, one of the criteria was authorization through the Active directory and the presence of duty reports. And of course the system was supposed to be Open Source and free. Unfortunately, I haven't found the perfect system for myself. In the course of my research, I came across an amazing calendar from Kartones (https://github.com/Kartones/flask-calendar) and I decided to fork it and write the perfect accounting system for Devops duty on my own
+In 2021 I started looking for a DevOps duty calendar. I needed a simple and convenient duty schedule calendar with a REST API which would message and call those on duty in case of an incident. I also required it to have duty reports and authorization through Active Directory. Obviously, the system was supposed to be Open Source and free. Unfortunately, I couldn’t find the perfect system. While searching I came across an amazing calendar from Kartones (https://github.com/Kartones/flask-calendar). I decided to fork it and create the perfect accounting system for DevOps duty on my own.
 
 ## System Features
 
