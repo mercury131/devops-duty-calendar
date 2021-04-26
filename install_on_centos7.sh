@@ -40,7 +40,34 @@ systemctl enable uwsgi && systemctl start uwsgi
 
 cp flask-calendar/flask_nginx.conf /etc/nginx/conf.d/
 
+read -p "Enter your domain FQDN: " DOMAIN
+
+sed -i "s|test.local|$DOMAIN|g" /etc/nginx/conf.d/
+
 systemctl reload nginx
+
+firewall-cmd --zone=public --add-port=80/tcp --permanent
+firewall-cmd --zone=public --add-port=443/tcp --permanent
+firewall-cmd --reload
+
+read -p "Install https access via let-s-encrypt (y/n)? " -n 1 -r
+
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+
+yum install certbot-nginx -y
+
+certbot --nginx -d $DOMAIN -d www.$DOMAIN
+
+crontab -l > mycron
+
+echo "15 3 * * * /usr/bin/certbot renew --quiet" >> mycron
+
+crontab mycron
+
+rm mycron
+
+fi
 
 
 #FLASK_APP=./flask_calendar/main.py flask run --host '0.0.0.0'
