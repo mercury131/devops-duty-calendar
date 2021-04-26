@@ -1,3 +1,6 @@
+# RUN bash -c "$(wget -O - https://raw.githubusercontent.com/mercury131/flask-calendar/master/install_on_centos7.sh)" 
+# to install Duty calendar
+
 setenforce 0
 
 yum install git nginx python3 -y
