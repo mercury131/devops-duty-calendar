@@ -1,8 +1,8 @@
 [Unit]
-    Description=uWSGI instance to serve flask-calendar
+    Description=uWSGI instance to serve devops-duty-calendar
 
 [Service]
-    ExecStart=/usr/bin/bash -c 'cd /var/www/flask-calendar; uwsgi --ini uwsgi.ini --enable-threads'
+    ExecStart=/usr/bin/bash -c 'cd /var/www/devops-duty-calendar; uwsgi --ini uwsgi.ini --enable-threads'
 
 [Install]
     WantedBy=multi-user.target
