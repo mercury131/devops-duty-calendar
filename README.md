@@ -1,6 +1,6 @@
 [![CircleCI](https://circleci.com/gh/Kartones/flask-calendar/tree/master.svg?style=svg)](https://circleci.com/gh/Kartones/flask-calendar/tree/master)
 
-# flask-calendar
+# DevOPS duty calendar
 
 ## Introduction
 
