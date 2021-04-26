@@ -40,7 +40,7 @@ systemctl enable uwsgi && systemctl start uwsgi
 
 cp flask-calendar/flask_nginx.conf /etc/nginx/conf.d/
 
-read -p "Enter your domain FQDN: " DOMAIN
+read -p "Enter your domain FQDN: " DOMAIN -t 1 __response </dev/tty
 
 sed -i "s|test.local|$DOMAIN|g" /etc/nginx/conf.d/flask_nginx.conf
 
@@ -50,7 +50,7 @@ firewall-cmd --zone=public --add-port=80/tcp --permanent
 firewall-cmd --zone=public --add-port=443/tcp --permanent
 firewall-cmd --reload
 
-read -p "Install https access via let-s-encrypt (y/n)? " -n 1 -r
+read -p "Install https access via let-s-encrypt (y/n)? " -n 1 -r -t 1 __response </dev/tty
 
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
