@@ -39,11 +39,11 @@ yum remove gcc python3-devel openldap-devel -y
 
 chown -R nginx /var/www
 
-cp devops-duty-calendar/uwsgi.service /etc/systemd/system/uwsgi.service && chown nginx /etc/systemd/system/uwsgi.service
+cp devops-duty-calendar/devops-duty-calendar.service /etc/systemd/system/devops-duty-calendar.service && chown nginx /etc/systemd/system/devops-duty-calendar.service
 
 systemctl daemon-reload
 
-systemctl enable uwsgi && systemctl start uwsgi
+systemctl enable devops-duty-calendar && systemctl start devops-duty-calendar
 
 cp devops-duty-calendar/flask_nginx.conf /etc/nginx/conf.d/
 
