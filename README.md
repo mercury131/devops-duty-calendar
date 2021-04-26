@@ -170,6 +170,7 @@ if you use a recurring schedule but want to change days this month, press the H 
 
 
 After that add regular task to day
+
 ![Main calendar view](doc/add.png)
 
 ### How to use Calendar REST API?
