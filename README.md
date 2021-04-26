@@ -218,10 +218,14 @@ Of cource you can use Slack,email or custom provider (&rest1,&rest2,etc), not on
 If you dont want to use default provider in config you can change that for your project.
 For example project kubernetes want receive messages only in Telegram and Slack
 Press api icon on main calendar page
+
 ![Main calendar view](doc/api_b.png)
+
 Press + button to add api mapping
 Fill api mapping form
+
 ![Main calendar view](doc/api_mapping.png)
+
 You can use this providers: telegram,slack,rest1(1234),email
 
 #### Token expiration
@@ -235,12 +239,15 @@ http://calendar.local/api/update/
 
 ### Schedule Reports
 To see schedule reports press report button
+
 ![Main calendar view](doc/report_b.png)
 
 You will see days report
+
 ![Main calendar view](doc/report.png)
 
 Press "Full calendar report" button on same page to see month report
+
 ![Main calendar view](doc/fullreport.png)
 
 You can select another month via "Select date" form
