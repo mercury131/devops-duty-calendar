@@ -46,24 +46,25 @@
     {{ month_name }} {{ year }}
 </div><br><br>
   <table border="1" class="customTable">
-    <thead><tr><th>name</th><th>days</th><th>project</th></tr></thead>
+    <thead><tr><th>Duty</th><th>Project</th>{% for item in days %}<th>{{ item }} {{ get_day_of_week(year,mounth,item) }} </th>{% endfor %}</tr></thead>
     <tbody>
+      
+      {% for duty in dutys %}
 
-   {% for key, value in report.items() %}
-      <tr><td>{{key}} </td><td>{{value}}</td><td>{{ get_duty_project(key) }}</td></tr>
-   {% endfor %}
-
+      <tr><td>{{ duty }} </td><td>{{ get_duty_project(duty) }}</td>{% for day in days %}<td>{{ check_calendar_duty(duty,year,mounth,day) }}</td>{% endfor %}</tr>
+      
+      {% endfor %}
     </tbody>
     </table>
 </div>
 <br>
-<form autocomplete="off" method="POST" action="{{ base_url }}/reports/">
+<form autocomplete="off" method="POST" action="{{ base_url }}/calendar_reports/">
 <label for="date_picker">Select date</label>
 <input id="date_picker" type="date" value="">     
 <input type="hidden" id="date" name="date" value="" />     
 <input class="custom-form-button" type="submit" value="Search" />
 </form>
-<a href="{{ base_url }}/calendar_reports/"><button id="toggle-past-events" class="custom-form-button" >Full Calendar Report</button></a>
+
 
  </body>
 </html>
