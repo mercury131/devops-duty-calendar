@@ -167,6 +167,8 @@ If you check on task, you will see backup duty
 ### How to change the days of duty if a repeating schedule is used?
 if you use a recurring schedule but want to change days this month, press the H button on the schedule date
 ![Main calendar view](doc/hide.png)
+
+
 After that add regular task to day
 ![Main calendar view](doc/add.png)
 
