@@ -11,6 +11,7 @@ from flask_calendar.calendar_data import CalendarData
 from flask_calendar.gregorian_calendar import GregorianCalendar
 from flask_calendar.call_providers import send_to_telegram, send_to_slack, send_email, send_rest1
 from datetime import datetime
+import calendar
 import json
 import hashlib
 from uuid import uuid4
@@ -49,6 +50,56 @@ def get_duty_project(duty):
     prj=prj[0]
     return prj
 
+def get_dutys():
+    dutys = db_session.query(Project.name).all()
+    dutys = [item[0] for item in dutys]
+    return dutys
+
+def check_calendar_duty(duty,y,m,d):
+    current_day, current_month, current_year = GregorianCalendar.current_date()
+    if y:
+        year = int(y)
+    else:
+        year = int(current_year)
+    if m:
+        month = int(m)
+    else:
+        month = int(current_month)
+    
+    if d:
+        current_day= d
+    calendar_id = current_app.config["DEFAULT_CALENDAR"]
+    calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
+    data = calendar_data.load_calendar(calendar_id)
+    tasks = calendar_data.tasks_from_calendar(year, month, data)
+    rtasks = calendar_data._repetitive_tasks_from_calendar(year, month, data)
+    jsondata=json.loads(json.dumps(tasks))
+    found=''
+
+    filterlist=month
+    try:
+        found=list(filter(lambda x:x["duty1"]==duty,jsondata[str(filterlist)][str(current_day)]))
+
+
+    except Exception as err:
+        False
+    if found == [] or not found:
+
+        jsondata=json.loads(json.dumps(rtasks))
+        try:
+            found=list(filter(lambda x:x["duty1"]==duty,jsondata[str(filterlist)][str(current_day)]))
+
+        except Exception:
+            return ' '
+            
+    if found:
+        return "X"
+    else:
+        return " "
+
+def get_day_of_week(y,m,d):
+    day=(datetime(int(y),int(m),int(d)).strftime('%a'))
+    return day
 
 def get_project_api(prj):
     apis = db_session.query(Api.api).filter(Api.project==prj).all()
@@ -934,6 +985,43 @@ def getreports(m,y):
         return jsonify(final_report)
 
     return render_template('reports.html', report=final_report, month_name=month_name , year=year, get_duty_project=get_duty_project)
+
+
+
+@app.route('/calendar_reports/', defaults={'m': None, 'y': None}, methods=['GET', 'POST'])
+@app.route('/calendar_reports/<m>&<y>', methods=['GET', 'POST'])
+@authenticated
+def get_calendar_reports(m,y):
+    if m:
+        month_days= int(calendar.monthrange(int(y), int(m))[1])
+        month_name = GregorianCalendar.MONTH_NAMES[int(m) - 1]
+    else:
+        now = datetime.now()
+        month_days= int(calendar.monthrange(now.year, now.month)[1])
+        month_name = mydate = now.strftime("%B")
+        m=now.strftime("%m")
+
+    if y:
+        year=int(y)
+    else:
+        y=int(datetime.now().year)
+
+    if request.method == 'POST':
+        date = request.form.get("date", "")
+        fragments = re.split("-", date)
+        try:
+            m = int(fragments[1])
+            month = max(min(m, 12), 1)
+            month_name = GregorianCalendar.MONTH_NAMES[month - 1]
+            y = int(fragments[0])
+            month_days= int(calendar.monthrange(y, m)[1])
+        except Exception:
+            False
+
+    month_days=list(range(1,(month_days + 1)))
+    dutys=get_dutys()
+    return render_template('reports_full.html', days=month_days, dutys=dutys,check_calendar_duty=check_calendar_duty, year=y, mounth=m,month_name=month_name, get_duty_project=get_duty_project, get_day_of_week=get_day_of_week)
+
 
 @app.route('/remove_tasks/', defaults={'tasks': None}, methods=['GET', 'POST'])
 @app.route('/remove_tasks/<tasks>', methods=['GET', 'POST'])
