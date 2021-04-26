@@ -42,7 +42,7 @@ cp flask-calendar/flask_nginx.conf /etc/nginx/conf.d/
 
 read -p "Enter your domain FQDN: " DOMAIN
 
-sed -i "s|test.local|$DOMAIN|g" /etc/nginx/conf.d/
+sed -i "s|test.local|$DOMAIN|g" /etc/nginx/conf.d/flask_nginx.conf
 
 systemctl reload nginx
 
