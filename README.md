@@ -253,14 +253,6 @@ Press "Full calendar report" button on same page to see month report
 You can select another month via "Select date" form
 ### Details
 
-Main calendar view:
-
-![Main calendar view](doc/screenshot_calendar.png)
-
-Create new task view:
-
-![Create new task view](doc/screenshot_new_task.png)
-
 Supports a basic drag & drop on desktop of days (like Google Calendar), edition of existing tasks, creation of repetitive tasks (daily, montly, by weekday, by month day or on specific day number), custom colors, and a few options like hiding past tasks or being able to manually hide those repetitive task ocurrences (I like a "clean view" and usually remove/hide past tasks).
 
 It is mobile friendly (buttons for actions are ugly and cannot drag & drop days on mobile, but otherwise works), might not be perfectly designed for all resolutions but at least works.
