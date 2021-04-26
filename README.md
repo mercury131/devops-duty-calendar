@@ -126,7 +126,7 @@ Enter manage duty button after login and press + button
 ![Main calendar view](doc/manage_duty.png)
 
 
-fill the form
+Fill the form
 
 ![Main calendar view](doc/duty_form.png)
 
