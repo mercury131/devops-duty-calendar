@@ -131,12 +131,16 @@ fill the form
 ### Add Project managers (if you need them)
 
 Press PM button
+
 ![Main calendar view](doc/pm_button.png)
 
+
 Add Project managers via + button and fill the form
+
 ![Main calendar view](doc/add_pm.png)
 
 You can edit entries or delete them at any time
+
 ![Main calendar view](doc/managers.png)
 
 ### Fill in the schedule
