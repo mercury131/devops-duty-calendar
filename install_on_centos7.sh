@@ -27,25 +27,25 @@ yum install gcc python3-devel openldap-devel -y
 
 pip3.6 install uwsgi
 
-git clone https://github.com/mercury131/flask-calendar
+git clone https://github.com/mercury131/devops-duty-calendar.git
 
-sed -i "s|/home/darkwind/flask-calendar/cache|/var/www/flask-calendar/cache|g" /var/www/flask-calendar/config.py
+sed -i "s|/home/darkwind/flask-calendar/cache|/var/www/devops-duty-calendar/cache|g" /var/www/devops-duty-calendar/config.py
 
-sed -i "s|/home/darkwind/flask-ldap/ca_name.pem|/var/www/flask-calendar/ca_name.pem|g" /var/www/flask-calendar/config.py
+sed -i "s|/home/darkwind/flask-ldap/ca_name.pem|/var/www/devops-duty-calendar/ca_name.pem|g" /var/www/devops-duty-calendar/config.py
 
-pip3.6 install -r flask-calendar/requirements.txt
+pip3.6 install -r devops-duty-calendar/requirements.txt
 
 yum remove gcc python3-devel openldap-devel -y
 
 chown -R nginx /var/www
 
-cp flask-calendar/uwsgi.service /etc/systemd/system/uwsgi.service && chown nginx /etc/systemd/system/uwsgi.service
+cp devops-duty-calendar/uwsgi.service /etc/systemd/system/uwsgi.service && chown nginx /etc/systemd/system/uwsgi.service
 
 systemctl daemon-reload
 
 systemctl enable uwsgi && systemctl start uwsgi
 
-cp flask-calendar/flask_nginx.conf /etc/nginx/conf.d/
+cp devops-duty-calendar/flask_nginx.conf /etc/nginx/conf.d/
 
 read -p "Enter your domain FQDN: " DOMAIN 
 
@@ -76,5 +76,5 @@ rm mycron
 
 fi
 
-
-#FLASK_APP=./flask_calendar/main.py flask run --host '0.0.0.0'
+# for debug APP
+#FLASK_APP=./devops-duty-calendar/main.py flask run --host '0.0.0.0'

@@ -29,7 +29,7 @@ System tested on Centos7
 
 run the following command to install:
 ```
-bash -c "$(wget -O - https://raw.githubusercontent.com/mercury131/flask-calendar/master/install_on_centos7.sh)" 
+bash -c "$(wget -O - https://raw.githubusercontent.com/mercury131/devops-duty-calendar/master/install_on_centos7.sh)" 
 ```
 
 After setup edit `config.py` and fill in or adapt to your needs.
