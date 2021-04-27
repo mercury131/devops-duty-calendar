@@ -454,6 +454,7 @@ def duty_projects():
     projects = db_session.query(Project.project).all()
     projects = [item[0] for item in projects]
     projects =list(set(projects))
+    projects.insert(0, "Select project")
     return jsonify({'PROJECTS': projects})
 
 @app.route('/api_project/<value>')
