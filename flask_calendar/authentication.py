@@ -37,7 +37,7 @@ class Authentication:
             ldapserver = current_app.config["LDAPSERVER"]
             domain = current_app.config["DOMAIN"]            
             username = username
-            auth_username = username
+            auth_username = (username + '@' + domain) 
             password = password
             ou = current_app.config["OU"]
             allowgroup_ro = current_app.config["ALLOWGROUP_RO"]
