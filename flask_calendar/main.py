@@ -934,8 +934,7 @@ def getreports(m,y):
     report=[]
     
     try:
-        for key in jsondata:
-            filterlist=key
+        filterlist=str(current_month)
         
         if m:
             filterlist=m
@@ -952,8 +951,7 @@ def getreports(m,y):
         False
 
     try:
-        for key in jsondata2:
-            filterlist2=key
+        filterlist2=str(current_month)
         if m:
             filterlist2=m
         if request.method == 'POST':
