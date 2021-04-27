@@ -35,10 +35,11 @@ class Authentication:
         try:
             CACert = current_app.config["CACERT"]
             ldapserver = current_app.config["LDAPSERVER"]
+            domain = current_app.config["DOMAIN"]            
             username = username
+            auth_username = username
             password = password
             ou = current_app.config["OU"]
-            domain = current_app.config["DOMAIN"]
             allowgroup_ro = current_app.config["ALLOWGROUP_RO"]
             allowgroup_rw = current_app.config["ALLOWGROUP_RW"]
             ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, CACert)
@@ -51,7 +52,7 @@ class Authentication:
             connect.set_option(ldap.OPT_X_TLS,ldap.OPT_X_TLS_DEMAND)
             connect.set_option( ldap.OPT_X_TLS_DEMAND, True )
             connect.set_option( ldap.OPT_DEBUG_LEVEL, 255 )
-            connect.simple_bind_s(username, password)
+            connect.simple_bind_s(auth_username, password)
             result = connect.search_s(ou,ldap.SCOPE_SUBTREE,('userPrincipalName=' + username + '@' + domain),['memberOf'])
             groups  = result[0][1]['memberOf']
             for group in groups:
