@@ -636,9 +636,13 @@ def call(prj,username,token,secondary,sendto):
         if secondary:
             email2=getemail(duty1)
             email1=getemail(duty2)
+            duty2=phone1
+            duty1=phone2
         else:
             email1=getemail(duty1)
             email2=getemail(duty2)
+            duty1=phone1
+            duty2=phone2
         url=current_app.config["REST1_URL"]
         method=current_app.config["REST1_METHOD"]
         auth=current_app.config["REST1_AUTH"]
