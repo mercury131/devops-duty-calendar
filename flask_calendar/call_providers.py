@@ -103,28 +103,32 @@ def send_to_slack(duty,message,slackchannel,apitoken):
 
 def send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_address, *args, **kwargs):
 
-    smtp_login = kwargs.get('smtp_login', None)
-    smtp_password = kwargs.get('smtp_password', None)
-    mail_content = text 
-    #The mail addresses and password
-    #Setup the MIME
-    message = MIMEMultipart()
-    message['From'] = sender_address
-    message['To'] = receiver_address
-    message['Subject'] =  subject  #The subject line
-    message['X-Priority'] = '1'
-    #The body and the attachments for the mail
-    message.attach(MIMEText(mail_content, 'plain'))
-    #Create SMTP session for sending the mail
-    session = smtplib.SMTP(smtp_server, smtp_port) #use gmail with port
-    if int(smtp_port) == 587 or int(smtp_port) == 2525:
-        session.starttls() #enable security
-    
-    if 'smtp_login' in locals():
-        session.login(smtp_login, smtp_password) #login with mail_id and password
-    text = message.as_string()
-    session.sendmail(sender_address, receiver_address, text)
-    session.quit()
+    try:
+
+        smtp_login = kwargs.get('smtp_login', None)
+        smtp_password = kwargs.get('smtp_password', None)
+        mail_content = text 
+        #The mail addresses and password
+        #Setup the MIME
+        message = MIMEMultipart()
+        message['From'] = sender_address
+        message['To'] = receiver_address
+        message['Subject'] =  subject  #The subject line
+        message['X-Priority'] = '1'
+        #The body and the attachments for the mail
+        message.attach(MIMEText(mail_content, 'plain'))
+        #Create SMTP session for sending the mail
+        session = smtplib.SMTP(smtp_server, smtp_port) #use gmail with port
+        if int(smtp_port) == 587 or int(smtp_port) == 2525:
+            session.starttls() #enable security
+        
+        if 'smtp_login' in locals() and smtp_login is not None :
+            session.login(smtp_login, smtp_password) #login with mail_id and password
+        text = message.as_string()
+        session.sendmail(sender_address, receiver_address, text)
+        session.quit()
+    except Exception as e:
+        print(e)
 
 def send_rest1(duty1,duty2,project,email1,email2,url,method,auth,user,password,arg1,arg2,arg3,arg4):
 

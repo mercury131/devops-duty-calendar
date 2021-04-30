@@ -182,8 +182,8 @@ def checkpm():
 def check_duty_schedule():
     with app.app_context():
         projects=get_projects()
-
         for project in projects:
+            
             duty=None
             last_duty=None
             email=None
@@ -215,7 +215,7 @@ def check_duty_schedule():
 
 
                 lemail=getemail(last_duty)
-                if email:
+                if lemail:
                     subject = (current_app.config["SH_LAST_DUTY_EMAIL_SUBJECT"] ).replace('<PROJECT>',project)
                     text = current_app.config["SH_LAST_DUTY_EMAIL_MESSAGE"].replace('<PROJECT>',project)
                     receiver_address = lemail
@@ -234,7 +234,7 @@ def check_duty_schedule():
                             send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_address,smtp_login=smtp_server_login,smtp_password=smtp_server_password)
                         except Exception:
                             print("Error while sending email message to:",email,"detected","Check SMTP server settings")
-                    print("Send notification to ",email)                    
+                    print("Send notification to ",lemail)                    
 
 
 def check_token_ttl():
