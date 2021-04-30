@@ -98,13 +98,17 @@ def get_today_duty(project,app):
             True
         else:
             return jsonify("No duty found for ",project," today","Check your project schedule!")
-        if len(found) > 1:
-            for x in found:
-                duty1=x['duty1']
-        else:
-            duty1=found[0]['duty1']
         
-        return duty1
+        try:      
+            if len(found) > 1:
+                for x in found:
+                    duty1=x['duty1']
+            else:
+                duty1=found[0]['duty1']
+            
+            return duty1
+        except Exception:
+            return "duty not found"
 
 def get_yesterday_duty(project,app):
     with app.app_context():
@@ -121,6 +125,7 @@ def get_yesterday_duty(project,app):
         jsondata=json.loads(json.dumps(tasks))
         found=''
         filterlist=str(current_month)
+        print(filterlist)
         try:
             found=list(filter(lambda x:x["project"]==project,jsondata[filterlist][str(yesterday)]))
         except Exception:
@@ -133,13 +138,17 @@ def get_yesterday_duty(project,app):
             True
         else:
             False
-        if len(found) > 1:
-            for x in found:
-                duty1=x['duty1']
-        else:
-            duty1=found[0]['duty1']
-        
-        return duty1
+        print(found)
+        try:
+            if len(found) > 1:
+                for x in found:
+                    duty1=x['duty1']
+            else:
+                duty1=found[0]['duty1']
+            
+            return duty1
+        except Exception:
+            return "duty not found"
 
 def checkpm():
     with app.app_context():

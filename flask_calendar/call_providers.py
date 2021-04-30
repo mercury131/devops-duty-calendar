@@ -117,7 +117,8 @@ def send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_addres
     message.attach(MIMEText(mail_content, 'plain'))
     #Create SMTP session for sending the mail
     session = smtplib.SMTP(smtp_server, smtp_port) #use gmail with port
-    session.starttls() #enable security
+    if int(smtp_port) == 587 or int(smtp_port) == 2525:
+        session.starttls() #enable security
     
     if 'smtp_login' in locals():
         session.login(smtp_login, smtp_password) #login with mail_id and password
