@@ -56,8 +56,7 @@ def check_today_duty(project,app):
         rtasks = calendar_data._repetitive_tasks_from_calendar(year, month, data)
         jsondata=json.loads(json.dumps(tasks))
         found=''
-        for key in jsondata:
-            filterlist=key
+        filterlist=str(current_month)
         try:
             found=list(filter(lambda x:x["project"]==project,jsondata[filterlist][str(current_day)]))
         except Exception:
@@ -85,8 +84,7 @@ def get_today_duty(project,app):
         rtasks = calendar_data._repetitive_tasks_from_calendar(year, month, data)
         jsondata=json.loads(json.dumps(tasks))
         found=''
-        for key in jsondata:
-            filterlist=key
+        filterlist=str(current_month)
         try:
             found=list(filter(lambda x:x["project"]==project,jsondata[filterlist][str(current_day)]))
         except Exception:
@@ -122,8 +120,7 @@ def get_yesterday_duty(project,app):
         rtasks = calendar_data._repetitive_tasks_from_calendar(year, month, data)
         jsondata=json.loads(json.dumps(tasks))
         found=''
-        for key in jsondata:
-            filterlist=key
+        filterlist=str(current_month)
         try:
             found=list(filter(lambda x:x["project"]==project,jsondata[filterlist][str(yesterday)]))
         except Exception:
