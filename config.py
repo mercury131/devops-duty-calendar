@@ -120,10 +120,10 @@ JOBS = [
        {
            'id': 'notify duty',
            'func': 'check_duty_schedule',
-           'trigger': 'cron',
-           'day': '*',
-           'hour': 11,
-           'minute': 27
+            'trigger': 'cron',
+            'day': '*',
+            'hour': 11,
+            'minute': 27
        },    
        {
            'id': 'Expire tokens',

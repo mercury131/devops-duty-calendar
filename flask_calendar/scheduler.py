@@ -41,6 +41,13 @@ def get_project_managers():
 def get_projects():
     projects = db_session.query(Project.project).all()
     projects = [item[0] for item in projects]
+    projects_all=[]
+    for item in projects:
+        projects_all.append(item.split(','))
+    projects =[]
+    for item in projects_all:
+        for prj in item:
+            projects.append((prj))
     projects =list(set(projects))
     return projects
 
@@ -113,10 +120,12 @@ def get_today_duty(project,app):
 def get_yesterday_duty(project,app):
     with app.app_context():
         current_day, current_month, current_year = GregorianCalendar.current_date()
-        year = int(current_year)
-        month = int(current_month)
+        
         yesterday = datetime.now() - timedelta(1)
-        yesterday = datetime.strftime(yesterday, '%d')
+        month = int(datetime.strftime(yesterday, '%m'))
+        year = int(datetime.strftime(yesterday, '%Y'))
+        yesterday = datetime.strftime(yesterday, '%-d')
+        current_month=month
         calendar_id = current_app.config["DEFAULT_CALENDAR"]
         calendar_data = CalendarData(current_app.config["DATA_FOLDER"], current_app.config["WEEK_STARTING_DAY"])
         data = calendar_data.load_calendar(calendar_id)
@@ -125,7 +134,6 @@ def get_yesterday_duty(project,app):
         jsondata=json.loads(json.dumps(tasks))
         found=''
         filterlist=str(current_month)
-        print(filterlist)
         try:
             found=list(filter(lambda x:x["project"]==project,jsondata[filterlist][str(yesterday)]))
         except Exception:
@@ -138,7 +146,7 @@ def get_yesterday_duty(project,app):
             True
         else:
             False
-        print(found)
+
         try:
             if len(found) > 1:
                 for x in found:
@@ -192,6 +200,7 @@ def check_duty_schedule():
             last_duty=get_yesterday_duty(project,app)
             if last_duty != duty:
                 email=getemail(duty)
+                print("send email to ",duty, "last duty-",last_duty)
                 if email:
                     subject = (current_app.config["SH_DUTY_EMAIL_SUBJECT"] ).replace('<PROJECT>',project)
                     text = current_app.config["SH_DUTY_EMAIL_MESSAGE"].replace('<PROJECT>',project)
