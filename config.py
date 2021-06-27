@@ -31,6 +31,8 @@ DEFAULT_CALENDAR = "sample"
 
 OWERWRITE_DETAILS = "yes"
 
+CALCULATE_EVERY_DAY="false"
+
 # Callback API Settings
 
 USE_TEST_ROUTE = 'yes'
