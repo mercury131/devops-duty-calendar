@@ -78,6 +78,16 @@ def create_app(config_overrides: Dict = None) -> Flask:
             else:
                 return jsonify(PARAM1,PARAM2,PARAM3,PARAM4,PARAM5,PARAM6)
 
+    if app.config["USE_TEST_ROUTE"] == 'yes':
+        @app.route('/testsms/<PARAM1>text=<PARAM2>&provider=<PARAM3>&timeout=<PARAM4>', methods=['GET', 'POST'])
+        @htpasswd.required
+        def testsms(PARAM1,PARAM2,PARAM3,PARAM4, *args, **kwargs):
+            if request.method == 'POST':
+                #
+                return jsonify("method POST",PARAM1,PARAM2,PARAM3,PARAM4)
+            else:
+                return jsonify(PARAM1,PARAM2,PARAM3,PARAM4)
+
     app.add_url_rule("/", "index_action", index_action, methods=["GET"])
     app.add_url_rule("/login", "login_action", login_action, methods=["GET"])
     app.add_url_rule("/do_login", "do_login_action", do_login_action, methods=["POST"])

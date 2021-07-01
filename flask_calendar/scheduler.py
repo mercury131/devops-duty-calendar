@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import json
 from flask_calendar.app import app
-from flask_calendar.call_providers import send_email
+from flask_calendar.call_providers import send_email, send_rest1
 from datetime import datetime, timedelta
 from sqlalchemy import and_
 
@@ -29,6 +29,15 @@ def getemail(duty):
         emails = [item[0] for item in emails]
         email=emails[0]
         return email
+    except Exception:
+        return None
+
+def getphone(duty):
+    try:
+        phones = db_session.query(Project.phone).filter(Project.name==duty).all()
+        phones = [item[0] for item in phones]
+        phone=phones[0]
+        return phone
     except Exception:
         return None
 
@@ -100,11 +109,13 @@ def get_today_duty(project,app):
             try:
                 found=list(filter(lambda x:x["project"]==project,jsondata[str(current_month)][str(current_day)]))
             except Exception:
-                return jsonify("No duty found for ",project," today","Check your project schedule!")
+                False
+                #return jsonify("No duty found for ",project," today","Check your project schedule!")
         if found:
             True
         else:
-            return jsonify("No duty found for ",project," today","Check your project schedule!")
+            False
+            #return jsonify("No duty found for ",project," today","Check your project schedule!")
         
         try:      
             if len(found) > 1:
@@ -115,7 +126,8 @@ def get_today_duty(project,app):
             
             return duty1
         except Exception:
-            return "duty not found"
+            #return "duty not found"
+            False
 
 def get_yesterday_duty(project,app):
     with app.app_context():
@@ -198,52 +210,132 @@ def check_duty_schedule():
             lemail=None
             duty=get_today_duty(project,app)
             last_duty=get_yesterday_duty(project,app)
-            if last_duty != duty:
-                email=getemail(duty)
-                print("send email to ",duty, "last duty-",last_duty)
-                if email:
-                    subject = (current_app.config["SH_DUTY_EMAIL_SUBJECT"] ).replace('<PROJECT>',project)
-                    text = current_app.config["SH_DUTY_EMAIL_MESSAGE"].replace('<PROJECT>',project)
-                    receiver_address = email
-                    smtp_server = current_app.config["SH_SMTP_SERVER"]
-                    smtp_port = current_app.config["SH_SMTP_PORT"]
-                    sender_address = current_app.config["SH_SENDER_ADDRESS"]
-                    smtp_server_login = current_app.config["SH_SMTP_LOGIN"]
-                    smtp_server_password = current_app.config["SH_SMTP_PASSWORD"]
-                    if smtp_server_login == '':
-                        try:
-                            send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_address)
-                        except Exception:
-                            print("Error while sending email message to:",email,"detected","Check SMTP server settings")
-                    else:
-                        try:
-                            send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_address,smtp_login=smtp_server_login,smtp_password=smtp_server_password)
-                        except Exception:
-                            print("Error while sending email message to:",email,"detected","Check SMTP server settings")
-                    print("Send notification to ",email)
+            if duty and last_duty:
+                if last_duty != duty:
+                    email=getemail(duty)
+                    print("send email to ",duty, "last duty-",last_duty,"project-",project)
+                    if email:
+                        subject = (current_app.config["SH_DUTY_EMAIL_SUBJECT"] ).replace('<PROJECT>',project)
+                        text = current_app.config["SH_DUTY_EMAIL_MESSAGE"].replace('<PROJECT>',project)
+                        receiver_address = email
+                        smtp_server = current_app.config["SH_SMTP_SERVER"]
+                        smtp_port = current_app.config["SH_SMTP_PORT"]
+                        sender_address = current_app.config["SH_SENDER_ADDRESS"]
+                        smtp_server_login = current_app.config["SH_SMTP_LOGIN"]
+                        smtp_server_password = current_app.config["SH_SMTP_PASSWORD"]
+                        if smtp_server_login == '':
+                            try:
+                                send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_address)
+                            except Exception:
+                                print("Error while sending email message to:",email,"detected","Check SMTP server settings")
+                        else:
+                            try:
+                                send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_address,smtp_login=smtp_server_login,smtp_password=smtp_server_password)
+                            except Exception:
+                                print("Error while sending email message to:",email,"detected","Check SMTP server settings")
+                        print("Send notification to ",email)
 
+                    lemail=getemail(last_duty)
+                    if lemail:
+                        subject = (current_app.config["SH_LAST_DUTY_EMAIL_SUBJECT"] ).replace('<PROJECT>',project)
+                        text = current_app.config["SH_LAST_DUTY_EMAIL_MESSAGE"].replace('<PROJECT>',project)
+                        receiver_address = lemail
+                        smtp_server = current_app.config["SH_SMTP_SERVER"]
+                        smtp_port = current_app.config["SH_SMTP_PORT"]
+                        sender_address = current_app.config["SH_SENDER_ADDRESS"]
+                        smtp_server_login = current_app.config["SH_SMTP_LOGIN"]
+                        smtp_server_password = current_app.config["SH_SMTP_PASSWORD"]
+                        if smtp_server_login == '':
+                            try:
+                                send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_address)
+                            except Exception:
+                                print("Error while sending email message to:",email,"detected","Check SMTP server settings")
+                        else:
+                            try:
+                                send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_address,smtp_login=smtp_server_login,smtp_password=smtp_server_password)
+                            except Exception:
+                                print("Error while sending email message to:",email,"detected","Check SMTP server settings")
+                        print("Send notification to ",lemail)
+                    
+                    if current_app.config["SH_USE_REST"] == 'yes' :
+                        duty1=duty
+                        duty2=last_duty
+                        if duty1:
+                            apis=[1]
+                            phone1=getphone(duty1)
+                            phone2=getphone(duty2)
+                            email1=getemail(duty1)
+                            email2=getemail(duty1)
+                            duty1=phone1
+                            duty2=phone2                    
+                            print("Send REST request to ",duty1)
+                            url=current_app.config["SH_REST_URL1"]
+                            method=current_app.config["SH_REST_METHOD"]
+                            auth=current_app.config["SH_REST_AUTH"]
+                            user=current_app.config["SH_REST_USER"]
+                            password=current_app.config["SH_REST_PASSWORD"]
+                            arg1=current_app.config["SH_REST_ARG1"]
+                            arg2=current_app.config["SH_REST_ARG2"]
+                            arg3=current_app.config["SH_REST_ARG3"]
+                            arg4=current_app.config["SH_REST_ARG4"]
+                            try:
+                                result=send_rest1(duty1,duty2,project,email1,email2,url,method,auth,user,password,arg1,arg2,arg3,arg4)
+                                if len(apis) > 1:
+                                    if 'output' in locals():
+                                        output=output + ("Send REST request to:",url," complete successfully")
+                                    else:
+                                        output = ("Send REST request to:",url," complete successfully")
+                                else:
+                                    print("Send REST request to:",url," complete successfully")
+                            except Exception as ex:
+                                print(ex)
+                                if len(apis) > 1:
+                                    err=1
+                                    if 'output' in locals():
+                                        output=output + ("Error! Cannot send REST request to:",url," check your request!")
+                                    else:
+                                        output = ("Error! Cannot send REST request to:",url," check your request!")
+                                else:
+                                    print("Error! Cannot send REST request to:",url," check your request!")    
 
-                lemail=getemail(last_duty)
-                if lemail:
-                    subject = (current_app.config["SH_LAST_DUTY_EMAIL_SUBJECT"] ).replace('<PROJECT>',project)
-                    text = current_app.config["SH_LAST_DUTY_EMAIL_MESSAGE"].replace('<PROJECT>',project)
-                    receiver_address = lemail
-                    smtp_server = current_app.config["SH_SMTP_SERVER"]
-                    smtp_port = current_app.config["SH_SMTP_PORT"]
-                    sender_address = current_app.config["SH_SENDER_ADDRESS"]
-                    smtp_server_login = current_app.config["SH_SMTP_LOGIN"]
-                    smtp_server_password = current_app.config["SH_SMTP_PASSWORD"]
-                    if smtp_server_login == '':
-                        try:
-                            send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_address)
-                        except Exception:
-                            print("Error while sending email message to:",email,"detected","Check SMTP server settings")
-                    else:
-                        try:
-                            send_email(subject,text,receiver_address,smtp_server,smtp_port,sender_address,smtp_login=smtp_server_login,smtp_password=smtp_server_password)
-                        except Exception:
-                            print("Error while sending email message to:",email,"detected","Check SMTP server settings")
-                    print("Send notification to ",lemail)                    
+                        duty1=duty
+                        duty2=last_duty
+                        if duty2:
+                            phone1=getphone(duty1)
+                            phone2=getphone(duty2)
+                            email1=getemail(duty1)
+                            email2=getemail(duty1)                                
+                            duty1=phone1
+                            duty2=phone2 
+                            print("Send REST request to ",duty2)
+                            url=current_app.config["SH_REST_URL2"]
+                            method=current_app.config["SH_REST_METHOD"]
+                            auth=current_app.config["SH_REST_AUTH"]
+                            user=current_app.config["SH_REST_USER"]
+                            password=current_app.config["SH_REST_PASSWORD"]
+                            arg1=current_app.config["SH_REST_ARG1"]
+                            arg2=current_app.config["SH_REST_ARG2"]
+                            arg3=current_app.config["SH_REST_ARG3"]
+                            arg4=current_app.config["SH_REST_ARG4"]
+                            try:
+                                result=send_rest1(duty1,duty2,project,email1,email2,url,method,auth,user,password,arg1,arg2,arg3,arg4)
+                                if len(apis) > 1:
+                                    if 'output' in locals():
+                                        output=output + ("Send REST request to:",url," complete successfully")
+                                    else:
+                                        output = ("Send REST request to:",url," complete successfully")
+                                else:
+                                    print("Send REST request to:",url," complete successfully")
+                            except Exception as ex:
+                                print(ex)
+                                if len(apis) > 1:
+                                    err=1
+                                    if 'output' in locals():
+                                        output=output + ("Error! Cannot send REST request to:",url," check your request!")
+                                    else:
+                                        output = ("Error! Cannot send REST request to:",url," check your request!")
+                                else:
+                                    print("Error! Cannot send REST request to:",url," check your request!")               
 
 
 def check_token_ttl():

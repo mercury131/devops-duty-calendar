@@ -170,6 +170,21 @@ SH_LAST_DUTY_EMAIL_SUBJECT = 'Your duty on the project <PROJECT> ended today!'
 
 SH_ADMINISTRATOR_EMAIL = ''
 
+# Scheduler REST Settings
+
+SH_USE_REST = 'no'
+# <DUTY1> <DUTY2> <PROJECT> <EMAIL1> <EMAIL2> <ARG1> <ARG2> <ARG3> <ARG4>
+SH_REST_URL1 = 'http://0.0.0.0:5000/testsms/<DUTY1>&text=<ARG1><PROJECT>&provider=sms&timeout=900'
+SH_REST_URL2 = 'http://0.0.0.0:5000/testsms/<DUTY2>&text=<ARG2><PROJECT>&provider=sms&timeout=900'
+SH_REST_METHOD = 'POST'
+SH_REST_AUTH = 'yes'
+SH_REST_USER = 'admin'
+SH_REST_PASSWORD = '12345'
+SH_REST_ARG1 = 'Your duty started today on the project-'
+SH_REST_ARG2 = 'Your duty ended today on the project-'
+SH_REST_ARG3 = ''
+SH_REST_ARG4 = ''
+
 
 WEEK_STARTING_DAY = constants.WEEK_START_DAY_MONDAY
 
