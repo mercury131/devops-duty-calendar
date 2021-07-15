@@ -435,25 +435,35 @@ def delete(id):
 @app.route('/duty_choice/<value>')
 @authenticated
 def duty_choice(value):
-    prj=value
-    dutys = db_session.query(Project.name).filter(Project.project==prj).all()
+    prj=str("%" + value + "%")
+    dutys = db_session.query(Project.name).filter(Project.project.like(prj)).all()
     dutys = [item[0] for item in dutys]
     return jsonify({'DUTY': dutys})
 
 @app.route('/duty_choice2/<value1>&<value2>')
+@authenticated
 def duty_choice2(value1,value2):
-    prj=value1
+    prj=str("%" + value1 + "%")
     duty=value2
-    dutys = db_session.query(Project.name).filter(Project.project==prj).all()
+    dutys = db_session.query(Project.name).filter(Project.project.like(prj)).all()
     dutys = [item[0] for item in dutys]
     dutys.append(dutys.pop(dutys.index(duty)))
     return jsonify({'DUTY': dutys})
 
 @app.route('/duty_projects/')
+@authenticated
 def duty_projects():
     projects = db_session.query(Project.project).all()
     projects = [item[0] for item in projects]
-    projects =list(set(projects))
+    projects_all=[]
+    for item in projects:
+        projects_all.append(item.split(','))
+    projects =[]
+    for item in projects_all:
+        for prj in item:
+            projects.append((prj))
+
+    projects= list(set(projects))
     projects.insert(0, "Select project")
     return jsonify({'PROJECTS': projects})
 
@@ -940,9 +950,26 @@ def getreports(m,y):
         if request.method == 'POST':
             filterlist=str(month)
         found=jsondata[filterlist]
+
+        
         for d in found:
-            for k in found[str(d)]:
-                report.append(k['duty1'])
+
+
+            if len(found[str(d)]) > 1:
+                same_duty=[]
+                for duty1 in found[str(d)]:
+                    same_duty.append(duty1['duty1'])
+                
+                if current_app.config["CALCULATE_EVERY_DAY"] == 'false':
+                    same_duty=set(same_duty)
+
+                for duty in same_duty:
+                    report.append(duty)   
+            else:
+                for k in found[str(d)]:
+
+                    report.append(k['duty1'])
+                
                 
 
         

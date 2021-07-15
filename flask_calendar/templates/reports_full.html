@@ -46,12 +46,12 @@
     {{ month_name }} {{ year }}
 </div><br><br>
   <table border="1" class="customTable">
-    <thead><tr><th>Duty</th><th>Project</th>{% for item in days %}<th>{{ item }} {{ get_day_of_week(year,mounth,item) }} </th>{% endfor %}</tr></thead>
+    <thead><tr><th>Duty</th><th>Project</th>{% for item in days %}<th>{{ item }} {{ get_day_of_week(year,mounth,item) }} </th>{% endfor %}<th>Days</th></tr></thead>
     <tbody>
       
       {% for duty in dutys %}
 
-      <tr><td>{{ duty }} </td><td>{{ get_duty_project(duty) }}</td>{% for day in days %}<td>{{ check_calendar_duty(duty,year,mounth,day) }}</td>{% endfor %}</tr>
+      <tr><td>{{ duty }} </td><td>{{ get_duty_project(duty) }}</td>{% set count = namespace(value=0) %}{% for day in days %}<td>{{ check_calendar_duty(duty,year,mounth,day) }}{% if check_calendar_duty(duty,year,mounth,day) == "X" %}{% set count.value = count.value + 1 %}{% endif %}</td>{% endfor %}<td>{{ count.value }}</td></tr>
       
       {% endfor %}
     </tbody>
