@@ -441,6 +441,7 @@ def duty_choice(value):
     return jsonify({'DUTY': dutys})
 
 @app.route('/duty_choice2/<value1>&<value2>')
+@authenticated
 def duty_choice2(value1,value2):
     prj=str("%" + value1 + "%")
     duty=value2
@@ -450,6 +451,7 @@ def duty_choice2(value1,value2):
     return jsonify({'DUTY': dutys})
 
 @app.route('/duty_projects/')
+@authenticated
 def duty_projects():
     projects = db_session.query(Project.project).all()
     projects = [item[0] for item in projects]
