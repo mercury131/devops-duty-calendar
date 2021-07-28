@@ -57,7 +57,7 @@ fi
     echo "Install python requirements" 
     pip3.6 install -r requirements.txt
     echo "Update completed!"
-    if [[ $(systemctl list-units --all -t service --full --no-legend "devops-duty-calendar" | cut -f1 -d' ') == "devops-duty-calendar" ]]; then
+    if [[ $(systemctl list-units --all -t service --full --no-legend "devops-duty-calendar.service" | cut -f1 -d' ') == "devops-duty-calendar.service" ]]; then
         echo "Start service devops-duty-calendar"
         systemctl start devops-duty-calendar
     else
