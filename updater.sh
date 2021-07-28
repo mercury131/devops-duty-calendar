@@ -48,13 +48,14 @@ if [ "${STATUS}" = "active" ]; then
 else 
     echo "devops-duty-calendar service not running "   
 fi
-    pip3.6 install -r requirements.txt
     echo "Stash your changes" 
     git stash
     echo "Pull latest version" 
     git pull
     echo "Merge your local changes with latest version" 
     git stash pop
+    echo "Install python requirements" 
+    pip3.6 install -r requirements.txt
     echo "Update completed!"
     if [[ $(systemctl list-units --all -t service --full --no-legend "devops-duty-calendar" | cut -f1 -d' ') == "devops-duty-calendar" ]]; then
         echo "Start service devops-duty-calendar"
