@@ -15,4 +15,3 @@ wtforms
 flask_table
 pandas
 xlsxwriter
-io
