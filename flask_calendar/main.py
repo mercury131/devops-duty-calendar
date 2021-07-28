@@ -1,7 +1,7 @@
 from flask_calendar.app import app, db
 from flask_calendar.db_setup import init_db, db_session
 from flask_calendar.forms import SearchForm, Duty, ApiForm, PMForm
-from flask import flash, current_app, session, render_template, request, redirect, jsonify, abort
+from flask import flash, current_app, session, render_template, request, redirect, jsonify, abort, send_file
 from flask_calendar.models import Project, Api, Apikeys, Pms
 from flask_calendar.tables import Results, Apitable, PMtable
 from flask_calendar.app_utils import remove_session , get_session_username
@@ -18,6 +18,7 @@ from uuid import uuid4
 import re
 import os
 from flask_calendar.scheduler import start_scheduler
+from flask_calendar.export_to_excel import export_to_excel
 
 from flask_calendar.app_utils import (
     add_session,
@@ -1047,6 +1048,13 @@ def get_calendar_reports(m,y):
     dutys=get_dutys()
     return render_template('reports_full.html', days=month_days, dutys=dutys,check_calendar_duty=check_calendar_duty, year=y, mounth=m,month_name=month_name, get_duty_project=get_duty_project, get_day_of_week=get_day_of_week)
 
+@app.route('/export/', defaults={'m': None, 'y': None}, methods=['GET', 'POST'])
+@app.route('/export/<m>&<y>', methods=['GET', 'POST'])
+@authenticated
+def download_excel(m,y):
+    excel_file = export_to_excel(m,y)
+    return excel_file
+    
 
 @app.route('/remove_tasks/', defaults={'tasks': None}, methods=['GET', 'POST'])
 @app.route('/remove_tasks/<tasks>', methods=['GET', 'POST'])

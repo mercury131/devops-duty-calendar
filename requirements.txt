@@ -13,3 +13,6 @@ flask_sqlalchemy
 flask_htpasswd
 wtforms
 flask_table
+pandas
+xlsxwriter
+io
