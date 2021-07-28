@@ -48,7 +48,7 @@ if [ "${STATUS}" = "active" ]; then
 else 
     echo "devops-duty-calendar service not running "   
 fi
-    pip3.6 install -r devops-duty-calendar/requirements.txt
+    pip3.6 install -r requirements.txt
     echo "Stash your changes" 
     git stash
     echo "Pull latest version" 
@@ -64,7 +64,7 @@ fi
         read -p "Install the service? (y/n)? " -n 1 -r
         if [[ $REPLY =~ ^[Yy]$ ]]
         then
-            cp devops-duty-calendar/devops-duty-calendar.service /etc/systemd/system/devops-duty-calendar.service && chown nginx /etc/systemd/system/devops-duty-calendar.service
+            cp devops-duty-calendar.service /etc/systemd/system/devops-duty-calendar.service && chown nginx /etc/systemd/system/devops-duty-calendar.service
             systemctl daemon-reload
             systemctl enable devops-duty-calendar && systemctl start devops-duty-calendar
         fi
