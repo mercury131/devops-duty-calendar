@@ -1053,7 +1053,8 @@ def get_calendar_reports(m,y):
 @authenticated
 def download_excel(m,y):
     excel_file = export_to_excel(m,y)
-    return send_file(excel_file, attachment_filename='report.xlsx', as_attachment=True)
+    return excel_file
+    
 
 @app.route('/remove_tasks/', defaults={'tasks': None}, methods=['GET', 'POST'])
 @app.route('/remove_tasks/<tasks>', methods=['GET', 'POST'])

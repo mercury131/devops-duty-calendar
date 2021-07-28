@@ -1,4 +1,4 @@
-from flask import Flask, flash, current_app, session, render_template, request, redirect, jsonify, abort
+from flask import Flask, flash, current_app, session, render_template, request, redirect, jsonify, abort, send_file
 from flask_calendar.calendar_data import CalendarData
 from flask_calendar.gregorian_calendar import GregorianCalendar
 from flask_calendar.db_setup import init_db, db_session
@@ -54,19 +54,26 @@ def export_to_excel(m,y):
 
         for duty in dutys:
             tmp_list=[]
+            duty_days=0
             for day in days:
-               tmp_list.append(check_calendar_duty(duty,y,m,day))
-            data[str(str(duty) + ' (' + str(get_duty_project(duty)) + ')')] = tmp_list
+                if check_calendar_duty(duty,y,m,day) == 'X':
+                    duty_days=duty_days + 1
+                tmp_list.append(check_calendar_duty(duty,y,m,day))
+            tmp_list.insert(len(tmp_list),duty_days)
+            tmp_list.insert(0,str(get_duty_project(duty)))
+            data[str(duty)] = tmp_list
 
-        days_week=[]
+        days_week=['Project']
         for day in days:
             days_week.append( str(day) + ' ' +  str(get_day_of_week(y,m,day)) )
+        days_week.insert(len(days_week),"Days")
         df = pd.DataFrame.from_dict(data, orient='index')
         df.columns = days_week
+        df.index.name = 'Name'
         output = BytesIO()
         writer = pd.ExcelWriter(output, engine='xlsxwriter')
         df.to_excel(writer, sheet_name=('Duty Report' + ' ' + str(m) + '-' + str(y)))
         writer.save()
         output.seek(0)
-        
-        return output
+        excel_file=output
+        return send_file(excel_file, attachment_filename='report.xlsx', as_attachment=True)
