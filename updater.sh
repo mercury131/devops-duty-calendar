@@ -60,6 +60,7 @@ fi
     if [[ $(systemctl list-units --all -t service --full --no-legend "devops-duty-calendar.service" | cut -f1 -d' ') == "devops-duty-calendar.service" ]]; then
         echo "Start service devops-duty-calendar"
         systemctl start devops-duty-calendar
+        systemctl status devops-duty-calendar
     else
         echo "Service devops-duty-calendar not found!"
         read -p "Install the service? (y/n)? " -n 1 -r
@@ -68,6 +69,7 @@ fi
             cp devops-duty-calendar.service /etc/systemd/system/devops-duty-calendar.service && chown nginx /etc/systemd/system/devops-duty-calendar.service
             systemctl daemon-reload
             systemctl enable devops-duty-calendar && systemctl start devops-duty-calendar
+            systemctl status devops-duty-calendar
         fi
 
     fi
