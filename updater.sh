@@ -48,7 +48,7 @@ if [ "${STATUS}" = "active" ]; then
 else 
     echo "devops-duty-calendar service not running "   
 fi
-
+    pip3.6 install -r devops-duty-calendar/requirements.txt
     echo "Stash your changes" 
     git stash
     echo "Pull latest version" 
