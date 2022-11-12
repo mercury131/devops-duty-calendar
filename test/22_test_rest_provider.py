@@ -21,6 +21,10 @@ def test_rest_provider():
     s.post((url + '/do_login'),data=payload)
 
 
+    # Making a auth post request to remove api mapping
+    response = s.post((url + '/deleteapi/1'))
+
+
     # Making a get request to update token
     response = s.get((url + '/api/update/'))
     token=(((response.json())[1]).split(':')[1]).strip ()
