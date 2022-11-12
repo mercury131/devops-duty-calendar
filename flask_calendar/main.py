@@ -10,6 +10,7 @@ from flask_calendar.authentication import Authentication
 from flask_calendar.calendar_data import CalendarData
 from flask_calendar.gregorian_calendar import GregorianCalendar
 from flask_calendar.call_providers import send_to_telegram, send_to_slack, send_email, send_rest1
+from flask_calendar.call_api import get_current_duty_api
 from datetime import datetime
 import calendar
 import json
@@ -1054,7 +1055,12 @@ def get_calendar_reports(m,y):
 def download_excel(m,y):
     excel_file = export_to_excel(m,y)
     return excel_file
-    
+
+@app.route('/api/call/<prj>/<username>&<token>', methods=['GET', 'POST'])
+@authenticated
+def get_current_duty(prj,username,token):
+    today_duty = get_current_duty_api(prj,username,token)
+    return today_duty    
 
 @app.route('/remove_tasks/', defaults={'tasks': None}, methods=['GET', 'POST'])
 @app.route('/remove_tasks/<tasks>', methods=['GET', 'POST'])

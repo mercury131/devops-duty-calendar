@@ -7,6 +7,7 @@ from flask_calendar.gregorian_calendar import GregorianCalendar
 from datetime import datetime
 import calendar
 import json
+import hashlib
 
 def check_calendar_duty(duty,y,m,d):
     current_day, current_month, current_year = GregorianCalendar.current_date()
@@ -64,3 +65,25 @@ def get_dutys():
     dutys = db_session.query(Project.name).all()
     dutys = [item[0] for item in dutys]
     return dutys
+
+def getphone(duty):
+    phones = db_session.query(Project.phone).filter(Project.name==duty).all()
+    phones = [item[0] for item in phones]
+    phone=phones[0]
+    return phone
+
+def auth_api(username,token):
+    try:
+        tokenkey = (db_session.query(Apikeys.key).filter(Apikeys.user==username).first())[0]
+        hash_algoritm = hashlib.new("sha256")
+        password_salt=current_app.config["PASSWORD_SALT"]
+        hash_algoritm.update((token + password_salt).encode("UTF-8"))
+        encoded = hash_algoritm.hexdigest()
+        print(encoded)
+        print(tokenkey)
+    except Exception:
+        return False
+    if encoded == tokenkey:
+        return True
+    else:
+        return False 
